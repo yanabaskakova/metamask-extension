@@ -235,6 +235,7 @@ export function requestRevealSeedWords(password) {
       throw error;
     } finally {
       dispatch(hideLoadingIndication());
+      dispatch(hideWarning());
     }
   };
 }
