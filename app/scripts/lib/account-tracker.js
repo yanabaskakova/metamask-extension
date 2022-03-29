@@ -26,6 +26,7 @@ import {
   AVALANCHE_CHAIN_ID,
   FANTOM_CHAIN_ID,
   ARBITRUM_CHAIN_ID,
+  LOCALHOST_RPC_URL,
 } from '../../../shared/constants/network';
 
 import {
@@ -65,6 +66,7 @@ export default class AccountTracker {
    * @param {object} opts.provider - An EIP-1193 provider instance that uses the current global network
    * @param {object} opts.blockTracker - A block tracker, which emits events for each new block
    * @param {Function} opts.getCurrentChainId - A function that returns the `chainId` for the current global network
+   * @param {Function} opts.getNetworkIdentifier - A function that returns the current network
    */
   constructor(opts = {}) {
     const initState = {
@@ -84,6 +86,7 @@ export default class AccountTracker {
     // bind function for easier listener syntax
     this._updateForBlock = this._updateForBlock.bind(this);
     this.getCurrentChainId = opts.getCurrentChainId;
+    this.getNetworkIdentifier = opts.getNetworkIdentifier;
 
     this.web3 = new Web3(this._provider);
   }
@@ -214,87 +217,92 @@ export default class AccountTracker {
     const { accounts } = this.store.getState();
     const addresses = Object.keys(accounts);
     const chainId = this.getCurrentChainId();
+    const networkId = this.getNetworkIdentifier();
+    const rpcUrl = 'http://127.0.0.1:8545';
 
-    switch (chainId) {
-      case MAINNET_CHAIN_ID:
-        await this._updateAccountsViaBalanceChecker(
-          addresses,
-          SINGLE_CALL_BALANCES_ADDRESS,
-        );
-        break;
+    if (networkId === LOCALHOST_RPC_URL || networkId === rpcUrl) {
+      await Promise.all(addresses.map(this._updateAccount.bind(this)));
+    } else {
+      switch (chainId) {
+        case MAINNET_CHAIN_ID:
+          await this._updateAccountsViaBalanceChecker(
+            addresses,
+            SINGLE_CALL_BALANCES_ADDRESS,
+          );
+          break;
 
-      case RINKEBY_CHAIN_ID:
-        await this._updateAccountsViaBalanceChecker(
-          addresses,
-          SINGLE_CALL_BALANCES_ADDRESS_RINKEBY,
-        );
-        break;
+        case RINKEBY_CHAIN_ID:
+          await this._updateAccountsViaBalanceChecker(
+            addresses,
+            SINGLE_CALL_BALANCES_ADDRESS_RINKEBY,
+          );
+          break;
 
-      case ROPSTEN_CHAIN_ID:
-        await this._updateAccountsViaBalanceChecker(
-          addresses,
-          SINGLE_CALL_BALANCES_ADDRESS_ROPSTEN,
-        );
-        break;
+        case ROPSTEN_CHAIN_ID:
+          await this._updateAccountsViaBalanceChecker(
+            addresses,
+            SINGLE_CALL_BALANCES_ADDRESS_ROPSTEN,
+          );
+          break;
 
-      case KOVAN_CHAIN_ID:
-        await this._updateAccountsViaBalanceChecker(
-          addresses,
-          SINGLE_CALL_BALANCES_ADDRESS_KOVAN,
-        );
-        break;
+        case KOVAN_CHAIN_ID:
+          await this._updateAccountsViaBalanceChecker(
+            addresses,
+            SINGLE_CALL_BALANCES_ADDRESS_KOVAN,
+          );
+          break;
 
-      case GOERLI_CHAIN_ID:
-        await this._updateAccountsViaBalanceChecker(
-          addresses,
-          SINGLE_CALL_BALANCES_ADDRESS_GOERLI,
-        );
-        break;
+        case GOERLI_CHAIN_ID:
+          await this._updateAccountsViaBalanceChecker(
+            addresses,
+            SINGLE_CALL_BALANCES_ADDRESS_GOERLI,
+          );
+          break;
 
-      case BSC_CHAIN_ID:
-        await this._updateAccountsViaBalanceChecker(
-          addresses,
-          SINGLE_CALL_BALANCES_ADDRESS_BSC,
-        );
-        break;
+        case BSC_CHAIN_ID:
+          await this._updateAccountsViaBalanceChecker(
+            addresses,
+            SINGLE_CALL_BALANCES_ADDRESS_BSC,
+          );
+          break;
 
-      case OPTIMISM_CHAIN_ID:
-        await this._updateAccountsViaBalanceChecker(
-          addresses,
-          SINGLE_CALL_BALANCES_ADDRESS_OPTIMISM,
-        );
-        break;
+        case OPTIMISM_CHAIN_ID:
+          await this._updateAccountsViaBalanceChecker(
+            addresses,
+            SINGLE_CALL_BALANCES_ADDRESS_OPTIMISM,
+          );
+          break;
 
-      case POLYGON_CHAIN_ID:
-        await this._updateAccountsViaBalanceChecker(
-          addresses,
-          SINGLE_CALL_BALANCES_ADDRESS_POLYGON,
-        );
-        break;
+        case POLYGON_CHAIN_ID:
+          await this._updateAccountsViaBalanceChecker(
+            addresses,
+            SINGLE_CALL_BALANCES_ADDRESS_POLYGON,
+          );
+          break;
 
-      case AVALANCHE_CHAIN_ID:
-        await this._updateAccountsViaBalanceChecker(
-          addresses,
-          SINGLE_CALL_BALANCES_ADDRESS_AVALANCHE,
-        );
-        break;
+        case AVALANCHE_CHAIN_ID:
+          await this._updateAccountsViaBalanceChecker(
+            addresses,
+            SINGLE_CALL_BALANCES_ADDRESS_AVALANCHE,
+          );
+          break;
 
-      case FANTOM_CHAIN_ID:
-        await this._updateAccountsViaBalanceChecker(
-          addresses,
-          SINGLE_CALL_BALANCES_ADDRESS_FANTOM,
-        );
-        break;
+        case FANTOM_CHAIN_ID:
+          await this._updateAccountsViaBalanceChecker(
+            addresses,
+            SINGLE_CALL_BALANCES_ADDRESS_FANTOM,
+          );
+          break;
 
-      case ARBITRUM_CHAIN_ID:
-        await this._updateAccountsViaBalanceChecker(
-          addresses,
-          SINGLE_CALL_BALANCES_ADDRESS_ARBITRUM,
-        );
-        break;
-
-      default:
-        await Promise.all(addresses.map(this._updateAccount.bind(this)));
+        case ARBITRUM_CHAIN_ID:
+          await this._updateAccountsViaBalanceChecker(
+            addresses,
+            SINGLE_CALL_BALANCES_ADDRESS_ARBITRUM,
+          );
+          break;
+        default:
+          await Promise.all(addresses.map(this._updateAccount.bind(this)));
+      }
     }
   }
 
