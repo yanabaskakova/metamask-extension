@@ -3,10 +3,10 @@ version: 2.1
 executors:
   node-browsers:
     docker:
-      - image: circleci/node:14-browsers
+      - image: circleci/node:16-browsers
   node-browsers-medium-plus:
     docker:
-      - image: circleci/node:14-browsers
+      - image: circleci/node:16-browsers
     resource_class: medium+
     environment:
       NODE_OPTIONS: --max_old_space_size=2048
@@ -670,6 +670,13 @@ jobs:
       - run:
           name: test:coverage:jest
           command: yarn test:coverage:jest
+      - run: 
+          name: Validate coverage thresholds
+          command: |
+            if ! git diff --exit-code jest.config.js development/jest.config.js; then
+              echo "Detected changes in coverage thresholds"
+              exit 1
+            fi
       - persist_to_workspace:
           root: .
           paths:
