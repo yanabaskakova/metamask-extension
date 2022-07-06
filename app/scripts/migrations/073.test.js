@@ -1,18 +1,18 @@
 import { TEST_CHAINS } from '../../../shared/constants/network';
-import migration71 from './071';
+import migration73 from './073';
 
-describe('migration #71', () => {
+describe('migration #73', () => {
   it('should update the version metadata', async () => {
     const oldStorage = {
       meta: {
-        version: 70,
+        version: 72,
       },
       data: {},
     };
 
-    const newStorage = await migration71.migrate(oldStorage);
+    const newStorage = await migration73.migrate(oldStorage);
     expect(newStorage.meta).toStrictEqual({
-      version: 71,
+      version: 73,
     });
   });
 
@@ -34,7 +34,7 @@ describe('migration #71', () => {
       },
     };
 
-    const newStorage = await migration71.migrate(oldStorage);
+    const newStorage = await migration73.migrate(oldStorage);
     const newAdvancedGasFee = {
       '0x3': {
         maxBaseFee: 10,
