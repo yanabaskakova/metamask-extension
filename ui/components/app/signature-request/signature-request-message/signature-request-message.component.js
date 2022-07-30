@@ -26,7 +26,7 @@ export default class SignatureRequestMessage extends PureComponent {
     }
 
     const { scrollTop, offsetHeight, scrollHeight } = this.props.messageRootRef;
-    const isAtBottom = scrollTop + offsetHeight >= scrollHeight;
+    const isAtBottom = Math.round(scrollTop) + offsetHeight >= scrollHeight;
 
     if (isAtBottom) {
       this.setState({ messageIsScrolled: true });
@@ -77,12 +77,7 @@ export default class SignatureRequestMessage extends PureComponent {
         className="signature-request-message__scroll-button"
         data-testid="signature-request-scroll-button"
       >
-        <img
-          src="./images/icons/down-arrow.svg"
-          width="28"
-          height="28"
-          alt={this.context.t('scrollDown')}
-        />
+        <i className="fa fa-arrow-down" title={this.context.t('scrollDown')} />
       </div>
     );
   }

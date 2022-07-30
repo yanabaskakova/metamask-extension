@@ -19,13 +19,16 @@ import { useCurrencyDisplay } from '../useCurrencyDisplay';
 import { useUserPreferencedCurrency } from '../useUserPreferencedCurrency';
 import { feeParamsAreCustom, getGasFeeEstimate } from './utils';
 
-const getMaxFeePerGasFromTransaction = (transaction) => {
+const getMaxFeePerGasFromTransaction = (transaction, gasFeeEstimates) => {
+  if (gasFeeEstimates?.[transaction?.userFeeLevel]) {
+    return gasFeeEstimates[transaction.userFeeLevel].suggestedMaxFeePerGas;
+  }
   const { maxFeePerGas, gasPrice } = transaction?.txParams || {};
   return Number(hexWEIToDecGWEI(maxFeePerGas || gasPrice));
 };
 
 /**
- * @typedef {Object} MaxFeePerGasInputReturnType
+ * @typedef {object} MaxFeePerGasInputReturnType
  * @property {(DecGweiString) => void} setMaxFeePerGas - state setter method to
  *  update the maxFeePerGas.
  * @property {string} [maxFeePerGasFiat] - the maxFeePerGas converted to the
@@ -64,7 +67,7 @@ export function useMaxFeePerGasInput({
   const showFiat = useSelector(getShouldShowFiat);
 
   const initialMaxFeePerGas = supportsEIP1559
-    ? getMaxFeePerGasFromTransaction(transaction)
+    ? getMaxFeePerGasFromTransaction(transaction, gasFeeEstimates)
     : 0;
 
   // This hook keeps track of a few pieces of transitional state. It is

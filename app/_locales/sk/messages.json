@@ -44,12 +44,6 @@
   "addSuggestedTokens": {
     "message": "Pridať navrhované tokeny"
   },
-  "addToAddressBook": {
-    "message": "Pridať do adresára"
-  },
-  "addToAddressBookModalPlaceholder": {
-    "message": "napr. Ján D."
-  },
   "addToken": {
     "message": "Přidat token"
   },
@@ -133,17 +127,14 @@
     "message": "Zobraziť účet na $1",
     "description": "$1 replaced by URL for custom block explorer"
   },
-  "blockiesIdenticon": {
-    "message": "Použít Blockies Identicon"
-  },
   "browserNotSupported": {
     "message": "Váš prehliadač nie je podporovaný..."
   },
   "buyWithWyre": {
-    "message": "Kúpte ETH s Wyre"
+    "message": "Kúpte $1 s Wyre"
   },
   "buyWithWyreDescription": {
-    "message": "Wyre vám umožňuje použiť kreditnú kartu na vloženie depozitu ETH priamo na váš účet MetaMask."
+    "message": "Wyre vám umožňuje použiť kreditnú kartu na vloženie depozitu $1 priamo na váš účet MetaMask."
   },
   "bytes": {
     "message": "Bajty"
@@ -336,9 +327,6 @@
   },
   "ensRegistrationError": {
     "message": "Chyba pri registrácii názvu ENS"
-  },
-  "enterAnAlias": {
-    "message": "Zadať alias"
   },
   "enterPassword": {
     "message": "Zadejte heslo"
@@ -737,9 +725,6 @@
   "restore": {
     "message": "Obnoviť"
   },
-  "restoreAccountWithSeed": {
-    "message": "Obnoviť účet pomocou seed frázy"
-  },
   "revealSeedWords": {
     "message": "Zobrazit slova klíčové fráze"
   },
@@ -784,9 +769,6 @@
   },
   "securityAndPrivacy": {
     "message": "Bezpečnosť a súkromie"
-  },
-  "seedPhrasePlaceholder": {
-    "message": "Každé slovo oddeľte jednou medzerou"
   },
   "seedPhraseReq": {
     "message": "klíčové fráze mají 12 slov"

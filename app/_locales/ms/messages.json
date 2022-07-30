@@ -44,12 +44,6 @@
   "addSuggestedTokens": {
     "message": "Tambah Token yang Disyorkan"
   },
-  "addToAddressBook": {
-    "message": "Tambah kepada buku alamat"
-  },
-  "addToAddressBookModalPlaceholder": {
-    "message": "cth. John D."
-  },
   "addToken": {
     "message": "Tambah Token"
   },
@@ -139,17 +133,14 @@
     "message": "Lihat akaun pada $1",
     "description": "$1 replaced by URL for custom block explorer"
   },
-  "blockiesIdenticon": {
-    "message": "Gunakan Identicon Blockies"
-  },
   "browserNotSupported": {
     "message": "Pelayar anda tidak disokong..."
   },
   "buyWithWyre": {
-    "message": "Beli ETH dengan Wyre"
+    "message": "Beli $1 dengan Wyre"
   },
   "buyWithWyreDescription": {
-    "message": "Wyre membolehkan anda menggunakan kad kredit untuk mendeposit ETH secara terus ke dalam akaun MetaMask anda."
+    "message": "Wyre membolehkan anda menggunakan kad kredit untuk mendeposit $1 secara terus ke dalam akaun MetaMask anda."
   },
   "bytes": {
     "message": "Bait"
@@ -339,9 +330,6 @@
   },
   "ensRegistrationError": {
     "message": "Ralat dalam pendaftaran nama ENS"
-  },
-  "enterAnAlias": {
-    "message": "Masukkan alias"
   },
   "enterPassword": {
     "message": "Masukkan kata laluan"
@@ -748,9 +736,6 @@
   "restore": {
     "message": "Pulihkan"
   },
-  "restoreAccountWithSeed": {
-    "message": "Pulihkan Akaun anda dengan Ungkapan Benih"
-  },
   "revealSeedWords": {
     "message": "Dedahkan Ungkapan Benih"
   },
@@ -801,9 +786,6 @@
   },
   "securityAndPrivacy": {
     "message": "Keselamatan & Privasi"
-  },
-  "seedPhrasePlaceholder": {
-    "message": "Pisahkan setiap perkataan dengan satu ruang"
   },
   "seedPhraseReq": {
     "message": "Frasa benih panjangnya 12 patah perkataan"

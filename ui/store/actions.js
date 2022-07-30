@@ -8,23 +8,30 @@ import {
   loadRelativeTimeFormatLocaleData,
 } from '../helpers/utils/i18n-helper';
 import { getMethodDataAsync } from '../helpers/utils/transactions.util';
-import { getSymbolAndDecimals } from '../helpers/utils/token-util';
-import { isEqualCaseInsensitive } from '../helpers/utils/util';
 import switchDirection from '../helpers/utils/switch-direction';
 import {
   ENVIRONMENT_TYPE_NOTIFICATION,
+  ORIGIN_METAMASK,
   POLLING_TOKEN_ENVIRONMENT_TYPES,
+  MESSAGE_TYPE,
 } from '../../shared/constants/app';
 import { hasUnconfirmedTransactions } from '../helpers/utils/confirm-tx.util';
 import txHelper from '../helpers/utils/tx-helper';
 import { getEnvironmentType, addHexPrefix } from '../../app/scripts/lib/util';
+import { decimalToHex } from '../helpers/utils/conversions.util';
 import {
   getMetaMaskAccounts,
   getPermittedAccountsForCurrentTab,
   getSelectedAddress,
-  getTokenList,
+  ///: BEGIN:ONLY_INCLUDE_IN(flask)
+  getNotifications,
+  ///: END:ONLY_INCLUDE_IN
 } from '../selectors';
-import { computeEstimatedGasLimit, resetSendState } from '../ducks/send';
+import {
+  computeEstimatedGasLimit,
+  initializeSendState,
+  resetSendState,
+} from '../ducks/send';
 import { switchedToUnconnectedAccount } from '../ducks/alerts/unconnected-account';
 import { getUnconnectedAccountAlertEnabledness } from '../ducks/metamask/metamask';
 import { toChecksumHexAddress } from '../../shared/modules/hexstring-utils';
@@ -33,6 +40,13 @@ import {
   LEDGER_TRANSPORT_TYPES,
   LEDGER_USB_VENDOR_ID,
 } from '../../shared/constants/hardware-wallets';
+import { EVENT } from '../../shared/constants/metametrics';
+import { parseSmartTransactionsError } from '../pages/swaps/swaps.util';
+import { isEqualCaseInsensitive } from '../../shared/modules/string-utils';
+///: BEGIN:ONLY_INCLUDE_IN(flask)
+import { NOTIFICATIONS_EXPIRATION_DELAY } from '../helpers/constants/notifications';
+///: END:ONLY_INCLUDE_IN
+import { setNewCustomNetworkAdded } from '../ducks/app/app';
 import * as actionConstants from './actionConstants';
 
 let background = null;
@@ -80,20 +94,39 @@ export function tryUnlockMetamask(password) {
   };
 }
 
-export function createNewVaultAndRestore(password, seed) {
+/**
+ * Adds a new account where all data is encrypted using the given password and
+ * where all addresses are generated from a given seed phrase.
+ *
+ * @param {string} password - The password.
+ * @param {string} seedPhrase - The seed phrase.
+ * @returns {object} The updated state of the keyring controller.
+ */
+export function createNewVaultAndRestore(password, seedPhrase) {
   return (dispatch) => {
     dispatch(showLoadingIndication());
     log.debug(`background.createNewVaultAndRestore`);
+
+    // Encode the secret recovery phrase as an array of integers so that it is
+    // serialized as JSON properly.
+    const encodedSeedPhrase = Array.from(
+      Buffer.from(seedPhrase, 'utf8').values(),
+    );
+
     let vault;
     return new Promise((resolve, reject) => {
-      background.createNewVaultAndRestore(password, seed, (err, _vault) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        vault = _vault;
-        resolve();
-      });
+      background.createNewVaultAndRestore(
+        password,
+        encodedSeedPhrase,
+        (err, _vault) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          vault = _vault;
+          resolve();
+        },
+      );
     })
       .then(() => dispatch(unMarkPasswordForgotten()))
       .then(() => {
@@ -115,8 +148,8 @@ export function createNewVaultAndGetSeedPhrase(password) {
 
     try {
       await createNewVault(password);
-      const seedWords = await verifySeedPhrase();
-      return seedWords;
+      const seedPhrase = await verifySeedPhrase();
+      return seedPhrase;
     } catch (error) {
       dispatch(displayWarning(error.message));
       throw new Error(error.message);
@@ -132,9 +165,9 @@ export function unlockAndGetSeedPhrase(password) {
 
     try {
       await submitPassword(password);
-      const seedWords = await verifySeedPhrase();
+      const seedPhrase = await verifySeedPhrase();
       await forceUpdateMetamaskState(dispatch);
-      return seedWords;
+      return seedPhrase;
     } catch (error) {
       dispatch(displayWarning(error.message));
       throw new Error(error.message);
@@ -183,17 +216,9 @@ export function verifyPassword(password) {
   });
 }
 
-export function verifySeedPhrase() {
-  return new Promise((resolve, reject) => {
-    background.verifySeedPhrase((error, seedWords) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-
-      resolve(seedWords);
-    });
-  });
+export async function verifySeedPhrase() {
+  const encodedSeedPhrase = await promisifiedBackground.verifySeedPhrase();
+  return Buffer.from(encodedSeedPhrase).toString('utf8');
 }
 
 export function requestRevealSeedWords(password) {
@@ -203,11 +228,11 @@ export function requestRevealSeedWords(password) {
 
     try {
       await verifyPassword(password);
-      const seedWords = await verifySeedPhrase();
-      return seedWords;
+      const seedPhrase = await verifySeedPhrase();
+      return seedPhrase;
     } catch (error) {
       dispatch(displayWarning(error.message));
-      throw new Error(error.message);
+      throw error;
     } finally {
       dispatch(hideLoadingIndication());
     }
@@ -398,7 +423,7 @@ export function connectHardware(deviceName, page, hdPath, t) {
 
     let accounts;
     try {
-      if (deviceName === 'ledger') {
+      if (deviceName === DEVICE_NAMES.LEDGER) {
         await promisifiedBackground.establishLedgerTransportPreference();
       }
       if (
@@ -424,7 +449,7 @@ export function connectHardware(deviceName, page, hdPath, t) {
     } catch (error) {
       log.error(error);
       if (
-        deviceName === 'ledger' &&
+        deviceName === DEVICE_NAMES.LEDGER &&
         ledgerTransportType === LEDGER_TRANSPORT_TYPES.WEBHID &&
         error.message.match('Failed to open the device')
       ) {
@@ -671,6 +696,122 @@ const updateMetamaskStateFromBackground = () => {
   });
 };
 
+export function updatePreviousGasParams(txId, previousGasParams) {
+  return async (dispatch) => {
+    let updatedTransaction;
+    try {
+      updatedTransaction = await promisifiedBackground.updatePreviousGasParams(
+        txId,
+        previousGasParams,
+      );
+    } catch (error) {
+      dispatch(txError(error));
+      log.error(error.message);
+      throw error;
+    }
+
+    return updatedTransaction;
+  };
+}
+
+export function updateSwapApprovalTransaction(txId, txSwapApproval) {
+  return async (dispatch) => {
+    let updatedTransaction;
+    try {
+      updatedTransaction = await promisifiedBackground.updateSwapApprovalTransaction(
+        txId,
+        txSwapApproval,
+      );
+    } catch (error) {
+      dispatch(txError(error));
+      log.error(error.message);
+      throw error;
+    }
+
+    return updatedTransaction;
+  };
+}
+
+export function updateEditableParams(txId, editableParams) {
+  return async (dispatch) => {
+    let updatedTransaction;
+    try {
+      updatedTransaction = await promisifiedBackground.updateEditableParams(
+        txId,
+        editableParams,
+      );
+    } catch (error) {
+      dispatch(txError(error));
+      log.error(error.message);
+      throw error;
+    }
+    await forceUpdateMetamaskState(dispatch);
+    return updatedTransaction;
+  };
+}
+
+/**
+ * Appends new send flow history to a transaction
+ *
+ * @param {string} txId - the id of the transaction to update
+ * @param {Array<{event: string, timestamp: number}>} sendFlowHistory - the new send flow history to append to the
+ *  transaction
+ * @returns {import('../../shared/constants/transaction').TransactionMeta}
+ */
+export function updateTransactionSendFlowHistory(txId, sendFlowHistory) {
+  return async (dispatch) => {
+    let updatedTransaction;
+    try {
+      updatedTransaction = await promisifiedBackground.updateTransactionSendFlowHistory(
+        txId,
+        sendFlowHistory,
+      );
+    } catch (error) {
+      dispatch(txError(error));
+      log.error(error.message);
+      throw error;
+    }
+
+    return updatedTransaction;
+  };
+}
+
+export function updateTransactionGasFees(txId, txGasFees) {
+  return async (dispatch) => {
+    let updatedTransaction;
+    try {
+      updatedTransaction = await promisifiedBackground.updateTransactionGasFees(
+        txId,
+        txGasFees,
+      );
+    } catch (error) {
+      dispatch(txError(error));
+      log.error(error.message);
+      throw error;
+    }
+
+    return updatedTransaction;
+  };
+}
+
+export function updateSwapTransaction(txId, txSwap) {
+  return async (dispatch) => {
+    let updatedTransaction;
+    try {
+      updatedTransaction = await promisifiedBackground.updateSwapTransaction(
+        txId,
+        txSwap,
+      );
+    } catch (error) {
+      dispatch(txError(error));
+      log.error(error.message);
+      throw error;
+    }
+
+    return updatedTransaction;
+  };
+}
+
 export function updateTransaction(txData, dontShowLoadingIndicator) {
   return async (dispatch) => {
     !dontShowLoadingIndicator && dispatch(showLoadingIndication());
@@ -698,25 +839,65 @@ export function updateTransaction(txData, dontShowLoadingIndicator) {
   };
 }
 
-export function addUnapprovedTransaction(txParams, origin, type) {
-  log.debug('background.addUnapprovedTransaction');
-
-  return () => {
-    return new Promise((resolve, reject) => {
-      background.addUnapprovedTransaction(
+/**
+ * Action to create a new transaction in the controller and route to the
+ * confirmation page. Returns the newly created txMeta in case additional logic
+ * should be applied to the transaction after creation.
+ *
+ * @param {import('../../shared/constants/transaction').TxParams} txParams -
+ *  The transaction parameters
+ * @param {import(
+ *  '../../shared/constants/transaction'
+ * ).TransactionTypeString} type - The type of the transaction being added.
+ * @param {Array<{event: string, timestamp: number}>} sendFlowHistory - The
+ *  history of the send flow at time of creation.
+ * @returns {import('../../shared/constants/transaction').TransactionMeta}
+ */
+export function addUnapprovedTransactionAndRouteToConfirmationPage(
+  txParams,
+  type,
+  sendFlowHistory,
+) {
+  return async (dispatch) => {
+    try {
+      log.debug('background.addUnapprovedTransaction');
+      const txMeta = await promisifiedBackground.addUnapprovedTransaction(
         txParams,
-        origin,
+        ORIGIN_METAMASK,
         type,
-        (err, txMeta) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          resolve(txMeta);
-        },
+        sendFlowHistory,
       );
-    });
+      dispatch(showConfTxPage());
+      return txMeta;
+    } catch (error) {
+      dispatch(hideLoadingIndication());
+      dispatch(displayWarning(error.message));
+    }
+    return null;
   };
+}
+
+/**
+ * Wrapper around the promisifedBackground to create a new unapproved
+ * transaction in the background and return the newly created txMeta.
+ * This method does not show errors or route to a confirmation page and is
+ * used primarily for swaps functionality.
+ *
+ * @param {import('../../shared/constants/transaction').TxParams} txParams -
+ *  The transaction parameters
+ * @param {import(
+ *  '../../shared/constants/transaction'
+ * ).TransactionTypeString} type - The type of the transaction being added.
+ * @returns {import('../../shared/constants/transaction').TransactionMeta}
+ */
+export async function addUnapprovedTransaction(txParams, type) {
+  log.debug('background.addUnapprovedTransaction');
+  const txMeta = await promisifiedBackground.addUnapprovedTransaction(
+    txParams,
+    ORIGIN_METAMASK,
+    type,
+  );
+  return txMeta;
 }
 
 export function updateAndApproveTx(txData, dontShowLoadingIndicator) {
@@ -822,15 +1003,53 @@ export function enableSnap(snapId) {
   };
 }
 
-export function removeSnap(snap) {
+export function removeSnap(snapId) {
   return async (dispatch) => {
-    await promisifiedBackground.removeSnap(snap);
+    await promisifiedBackground.removeSnap(snapId);
     await forceUpdateMetamaskState(dispatch);
   };
 }
 
 export async function removeSnapError(msgData) {
   return promisifiedBackground.removeSnapError(msgData);
+}
+
+export function dismissNotifications(ids) {
+  return async (dispatch) => {
+    await promisifiedBackground.dismissNotifications(ids);
+    await forceUpdateMetamaskState(dispatch);
+  };
+}
+
+export function deleteExpiredNotifications() {
+  return async (dispatch, getState) => {
+    const state = getState();
+    const notifications = getNotifications(state);
+
+    const notificationIdsToDelete = notifications
+      .filter((notification) => {
+        const expirationTime = new Date(
+          Date.now() - NOTIFICATIONS_EXPIRATION_DELAY,
+        );
+
+        return Boolean(
+          notification.readDate &&
+            new Date(notification.readDate) < expirationTime,
+        );
+      })
+      .map(({ id }) => id);
+    if (notificationIdsToDelete.length) {
+      await promisifiedBackground.dismissNotifications(notificationIdsToDelete);
+      await forceUpdateMetamaskState(dispatch);
+    }
+  };
+}
+
+export function markNotificationsAsRead(ids) {
+  return async (dispatch) => {
+    await promisifiedBackground.markNotificationsAsRead(ids);
+    await forceUpdateMetamaskState(dispatch);
+  };
 }
 ///: END:ONLY_INCLUDE_IN
 
@@ -849,6 +1068,96 @@ export function cancelMsg(msgData) {
     dispatch(completedTx(msgData.id));
     dispatch(closeCurrentNotificationWindow());
     return msgData;
+  };
+}
+
+/**
+ * Cancels all of the given messages
+ *
+ * @param {Array<object>} msgDataList - a list of msg data objects
+ * @returns {function(*): Promise<void>}
+ */
+export function cancelMsgs(msgDataList) {
+  return async (dispatch) => {
+    dispatch(showLoadingIndication());
+
+    try {
+      const msgIds = msgDataList.map((id) => id);
+      const cancellations = msgDataList.map(
+        ({ id, type }) =>
+          new Promise((resolve, reject) => {
+            switch (type) {
+              case MESSAGE_TYPE.ETH_SIGN_TYPED_DATA:
+                background.cancelTypedMessage(id, (err) => {
+                  if (err) {
+                    reject(err);
+                    return;
+                  }
+                  resolve();
+                });
+                return;
+              case MESSAGE_TYPE.PERSONAL_SIGN:
+                background.cancelPersonalMessage(id, (err) => {
+                  if (err) {
+                    reject(err);
+                    return;
+                  }
+                  resolve();
+                });
+                return;
+              case MESSAGE_TYPE.ETH_DECRYPT:
+                background.cancelDecryptMessage(id, (err) => {
+                  if (err) {
+                    reject(err);
+                    return;
+                  }
+                  resolve();
+                });
+                return;
+              case MESSAGE_TYPE.ETH_GET_ENCRYPTION_PUBLIC_KEY:
+                background.cancelEncryptionPublicKeyMsg(id, (err) => {
+                  if (err) {
+                    reject(err);
+                    return;
+                  }
+                  resolve();
+                });
+                return;
+              case MESSAGE_TYPE.ETH_SIGN:
+                background.cancelMessage(id, (err) => {
+                  if (err) {
+                    reject(err);
+                    return;
+                  }
+                  resolve();
+                });
+                return;
+              default:
+                reject(
+                  new Error(
+                    `MetaMask Message Signature: Unknown message type: ${id}`,
+                  ),
+                );
+            }
+          }),
+      );
+
+      await Promise.all(cancellations);
+      const newState = await updateMetamaskStateFromBackground();
+      dispatch(updateMetamaskState(newState));
+
+      msgIds.forEach((id) => {
+        dispatch(completedTx(id));
+      });
+    } catch (err) {
+      log.error(err);
+    } finally {
+      if (getEnvironmentType() === ENVIRONMENT_TYPE_NOTIFICATION) {
+        closeNotificationPopup();
+      } else {
+        dispatch(hideLoadingIndication());
+      }
+    }
   };
 }
 
@@ -1138,6 +1447,11 @@ export function updateMetamaskState(newState) {
         type: actionConstants.CHAIN_CHANGED,
         payload: newProvider.chainId,
       });
+      // We dispatch this action to ensure that the send state stays up to date
+      // after the chain changes. This async thunk will fail gracefully in the
+      // event that we are not yet on the send flow with a draftTransaction in
+      // progress.
+      dispatch(initializeSendState({ chainHasChanged: true }));
     }
     dispatch({
       type: actionConstants.UPDATE_METAMASK_STATE,
@@ -1318,6 +1632,79 @@ export function addToken(
     }
   };
 }
+/**
+ * To add detected tokens to state
+ *
+ * @param newDetectedTokens
+ */
+export function addDetectedTokens(newDetectedTokens) {
+  return async (dispatch) => {
+    try {
+      await promisifiedBackground.addDetectedTokens(newDetectedTokens);
+    } catch (error) {
+      log.error(error);
+    } finally {
+      await forceUpdateMetamaskState(dispatch);
+    }
+  };
+}
+
+/**
+ * To add the tokens user selected to state
+ *
+ * @param tokensToImport
+ */
+export function addImportedTokens(tokensToImport) {
+  return async (dispatch) => {
+    try {
+      await promisifiedBackground.addImportedTokens(tokensToImport);
+    } catch (error) {
+      log.error(error);
+    } finally {
+      await forceUpdateMetamaskState(dispatch);
+    }
+  };
+}
+
+/**
+ * To add ignored token addresses to state
+ *
+ * @param options
+ * @param options.tokensToIgnore
+ * @param options.dontShowLoadingIndicator
+ */
+export function ignoreTokens({
+  tokensToIgnore,
+  dontShowLoadingIndicator = false,
+}) {
+  const _tokensToIgnore = Array.isArray(tokensToIgnore)
+    ? tokensToIgnore
+    : [tokensToIgnore];
+
+  return async (dispatch) => {
+    if (!dontShowLoadingIndicator) {
+      dispatch(showLoadingIndication());
+    }
+    try {
+      await promisifiedBackground.ignoreTokens(_tokensToIgnore);
+    } catch (error) {
+      log.error(error);
+      dispatch(displayWarning(error.message));
+    } finally {
+      await forceUpdateMetamaskState(dispatch);
+      dispatch(hideLoadingIndication());
+    }
+  };
+}
+
+/**
+ * To fetch the ERC20 tokens with non-zero balance in a single call
+ *
+ * @param tokens
+ */
+export async function getBalancesInSingleCall(tokens) {
+  return await promisifiedBackground.getBalancesInSingleCall(tokens);
+}
 
 export function addCollectible(address, tokenID, dontShowLoadingIndicator) {
   return async (dispatch) => {
@@ -1466,21 +1853,6 @@ export async function getTokenStandardAndDetails(
   );
 }
 
-export function removeToken(address) {
-  return async (dispatch) => {
-    dispatch(showLoadingIndication());
-    try {
-      await promisifiedBackground.removeToken(address);
-    } catch (error) {
-      log.error(error);
-      dispatch(displayWarning(error.message));
-    } finally {
-      await forceUpdateMetamaskState(dispatch);
-      dispatch(hideLoadingIndication());
-    }
-  };
-}
-
 export function addTokens(tokens) {
   return (dispatch) => {
     if (Array.isArray(tokens)) {
@@ -1503,6 +1875,7 @@ export function rejectWatchAsset(suggestedAssetID) {
     dispatch(showLoadingIndication());
     try {
       await promisifiedBackground.rejectWatchAsset(suggestedAssetID);
+      await forceUpdateMetamaskState(dispatch);
     } catch (error) {
       log.error(error);
       dispatch(displayWarning(error.message));
@@ -1519,6 +1892,7 @@ export function acceptWatchAsset(suggestedAssetID) {
     dispatch(showLoadingIndication());
     try {
       await promisifiedBackground.acceptWatchAsset(suggestedAssetID);
+      await forceUpdateMetamaskState(dispatch);
     } catch (error) {
       log.error(error);
       dispatch(displayWarning(error.message));
@@ -2039,10 +2413,12 @@ export function showSendTokenPage() {
 export function buyEth(opts) {
   return async (dispatch) => {
     const url = await getBuyUrl(opts);
-    global.platform.openTab({ url });
-    dispatch({
-      type: actionConstants.BUY_ETH,
-    });
+    if (url) {
+      global.platform.openTab({ url });
+      dispatch({
+        type: actionConstants.BUY_ETH,
+      });
+    }
   };
 }
 
@@ -2323,6 +2699,18 @@ export function setEIP1559V2Enabled(val) {
   };
 }
 
+export function setTheme(val) {
+  return async (dispatch) => {
+    dispatch(showLoadingIndication());
+    log.debug(`background.setTheme`);
+    try {
+      await promisifiedBackground.setTheme(val);
+    } finally {
+      dispatch(hideLoadingIndication());
+    }
+  };
+}
+
 export function setIpfsGateway(val) {
   return (dispatch) => {
     dispatch(showLoadingIndication());
@@ -2405,6 +2793,13 @@ export function setPendingTokens(pendingTokens) {
 export function setSwapsLiveness(swapsLiveness) {
   return async (dispatch) => {
     await promisifiedBackground.setSwapsLiveness(swapsLiveness);
+    await forceUpdateMetamaskState(dispatch);
+  };
+}
+
+export function setSwapsFeatureFlags(featureFlags) {
+  return async (dispatch) => {
+    await promisifiedBackground.setSwapsFeatureFlags(featureFlags);
     await forceUpdateMetamaskState(dispatch);
   };
 }
@@ -2585,7 +2980,7 @@ export function requestAccountsPermissionWithId(origin) {
 /**
  * Approves the permissions request.
  *
- * @param {Object} request - The permissions request to approve.
+ * @param {object} request - The permissions request to approve.
  */
 export function approvePermissionsRequest(request) {
   return (dispatch) => {
@@ -2708,6 +3103,13 @@ export function setNewCollectibleAddedMessage(newCollectibleAddedMessage) {
   };
 }
 
+export function setNewTokensImported(newTokensImported) {
+  return {
+    type: actionConstants.SET_NEW_TOKENS_IMPORTED,
+    value: newTokensImported,
+  };
+}
+
 export function setLastActiveTime() {
   return (dispatch) => {
     background.setLastActiveTime((err) => {
@@ -2807,46 +3209,6 @@ export function loadingTokenParamsStarted() {
 export function loadingTokenParamsFinished() {
   return {
     type: actionConstants.LOADING_TOKEN_PARAMS_FINISHED,
-  };
-}
-
-export function getTokenParams(address) {
-  return (dispatch, getState) => {
-    const tokenList = getTokenList(getState());
-    const existingTokens = getState().metamask.tokens;
-    const { selectedAddress } = getState().metamask;
-    const { chainId } = getState().metamask.provider;
-    const existingCollectibles = getState().metamask?.allCollectibles?.[
-      selectedAddress
-    ]?.[chainId];
-    const existingToken = existingTokens.find(({ address: tokenAddress }) =>
-      isEqualCaseInsensitive(address, tokenAddress),
-    );
-    const existingCollectible = existingCollectibles?.find(
-      ({ address: collectibleAddress }) =>
-        isEqualCaseInsensitive(address, collectibleAddress),
-    );
-
-    if (existingCollectible) {
-      return null;
-    }
-
-    if (existingToken) {
-      return Promise.resolve({
-        symbol: existingToken.symbol,
-        decimals: existingToken.decimals,
-      });
-    }
-
-    dispatch(loadingTokenParamsStarted());
-    log.debug(`loadingTokenParams`);
-
-    return getSymbolAndDecimals(address, tokenList).then(
-      ({ symbol, decimals }) => {
-        dispatch(addToken(address, symbol, Number(decimals)));
-        dispatch(loadingTokenParamsFinished());
-      },
-    );
   };
 }
 
@@ -3185,6 +3547,178 @@ export async function setWeb3ShimUsageAlertDismissed(origin) {
   await promisifiedBackground.setWeb3ShimUsageAlertDismissed(origin);
 }
 
+// Smart Transactions Controller
+export async function setSmartTransactionsOptInStatus(
+  optInState,
+  prevOptInState,
+) {
+  trackMetaMetricsEvent({
+    event: 'STX OptIn',
+    category: EVENT.CATEGORIES.SWAPS,
+    sensitiveProperties: {
+      stx_enabled: true,
+      current_stx_enabled: true,
+      stx_user_opt_in: optInState,
+      stx_prev_user_opt_in: prevOptInState,
+    },
+  });
+  await promisifiedBackground.setSmartTransactionsOptInStatus(optInState);
+}
+
+export function fetchSmartTransactionFees(
+  unsignedTransaction,
+  approveTxParams,
+) {
+  return async (dispatch) => {
+    if (approveTxParams) {
+      approveTxParams.value = '0x0';
+    }
+    try {
+      return await promisifiedBackground.fetchSmartTransactionFees(
+        unsignedTransaction,
+        approveTxParams,
+      );
+    } catch (e) {
+      log.error(e);
+      if (e.message.startsWith('Fetch error:')) {
+        const errorObj = parseSmartTransactionsError(e.message);
+        dispatch({
+          type: actionConstants.SET_SMART_TRANSACTIONS_ERROR,
+          payload: errorObj.type,
+        });
+      }
+      throw e;
+    }
+  };
+}
+
+const createSignedTransactions = async (
+  unsignedTransaction,
+  fees,
+  areCancelTransactions,
+) => {
+  const unsignedTransactionsWithFees = fees.map((fee) => {
+    const unsignedTransactionWithFees = {
+      ...unsignedTransaction,
+      maxFeePerGas: decimalToHex(fee.maxFeePerGas),
+      maxPriorityFeePerGas: decimalToHex(fee.maxPriorityFeePerGas),
+      gas: areCancelTransactions
+        ? decimalToHex(21000) // It has to be 21000 for cancel transactions, otherwise the API would reject it.
+        : unsignedTransaction.gas,
+      value: unsignedTransaction.value,
+    };
+    if (areCancelTransactions) {
+      unsignedTransactionWithFees.to = unsignedTransactionWithFees.from;
+      unsignedTransactionWithFees.data = '0x';
+    }
+    return unsignedTransactionWithFees;
+  });
+  const signedTransactions = await promisifiedBackground.approveTransactionsWithSameNonce(
+    unsignedTransactionsWithFees,
+  );
+  return signedTransactions;
+};
+
+export function signAndSendSmartTransaction({
+  unsignedTransaction,
+  smartTransactionFees,
+}) {
+  return async (dispatch) => {
+    const signedTransactions = await createSignedTransactions(
+      unsignedTransaction,
+      smartTransactionFees.fees,
+    );
+    const signedCanceledTransactions = await createSignedTransactions(
+      unsignedTransaction,
+      smartTransactionFees.cancelFees,
+      true,
+    );
+    try {
+      const response = await promisifiedBackground.submitSignedTransactions({
+        signedTransactions,
+        signedCanceledTransactions,
+        txParams: unsignedTransaction,
+      }); // Returns e.g.: { uuid: 'dP23W7c2kt4FK9TmXOkz1UM2F20' }
+      return response.uuid;
+    } catch (e) {
+      log.error(e);
+      if (e.message.startsWith('Fetch error:')) {
+        const errorObj = parseSmartTransactionsError(e.message);
+        dispatch({
+          type: actionConstants.SET_SMART_TRANSACTIONS_ERROR,
+          payload: errorObj.type,
+        });
+      }
+      throw e;
+    }
+  };
+}
+
+export function updateSmartTransaction(uuid, txData) {
+  return async (dispatch) => {
+    try {
+      await promisifiedBackground.updateSmartTransaction({
+        uuid,
+        ...txData,
+      });
+    } catch (e) {
+      log.error(e);
+      if (e.message.startsWith('Fetch error:')) {
+        const errorObj = parseSmartTransactionsError(e.message);
+        dispatch({
+          type: actionConstants.SET_SMART_TRANSACTIONS_ERROR,
+          payload: errorObj.type,
+        });
+      }
+      throw e;
+    }
+  };
+}
+
+export function setSmartTransactionsRefreshInterval(refreshInterval) {
+  return async () => {
+    try {
+      await promisifiedBackground.setStatusRefreshInterval(refreshInterval);
+    } catch (e) {
+      log.error(e);
+    }
+  };
+}
+
+export function cancelSmartTransaction(uuid) {
+  return async (dispatch) => {
+    try {
+      await promisifiedBackground.cancelSmartTransaction(uuid);
+    } catch (e) {
+      log.error(e);
+      if (e.message.startsWith('Fetch error:')) {
+        const errorObj = parseSmartTransactionsError(e.message);
+        dispatch({
+          type: actionConstants.SET_SMART_TRANSACTIONS_ERROR,
+          payload: errorObj.type,
+        });
+      }
+      throw e;
+    }
+  };
+}
+
+export function fetchSmartTransactionsLiveness() {
+  return async () => {
+    try {
+      await promisifiedBackground.fetchSmartTransactionsLiveness();
+    } catch (e) {
+      log.error(e);
+    }
+  };
+}
+
+export function dismissSmartTransactionsErrorMessage() {
+  return {
+    type: actionConstants.DISMISS_SMART_TRANSACTIONS_ERROR_MESSAGE,
+  };
+}
+
 // DetectTokenController
 export async function detectNewTokens() {
   return promisifiedBackground.detectNewTokens();
@@ -3201,6 +3735,18 @@ export function setCollectiblesDetectionNoticeDismissed() {
 
 export function setEnableEIP1559V2NoticeDismissed() {
   return promisifiedBackground.setEnableEIP1559V2NoticeDismissed(true);
+}
+
+export function setCustomNetworkListEnabled(customNetworkListEnabled) {
+  return async () => {
+    try {
+      await promisifiedBackground.setCustomNetworkListEnabled(
+        customNetworkListEnabled,
+      );
+    } catch (error) {
+      log.error(error);
+    }
+  };
 }
 
 // QR Hardware Wallets
@@ -3227,5 +3773,31 @@ export function cancelQRHardwareSignRequest() {
   return async (dispatch) => {
     dispatch(hideLoadingIndication());
     await promisifiedBackground.cancelQRHardwareSignRequest();
+  };
+}
+
+export function addCustomNetwork(customRpc) {
+  return async (dispatch) => {
+    try {
+      dispatch(setNewCustomNetworkAdded(customRpc));
+      await promisifiedBackground.addCustomNetwork(customRpc);
+    } catch (error) {
+      log.error(error);
+      dispatch(displayWarning('Had a problem changing networks!'));
+    }
+  };
+}
+
+export function requestAddNetworkApproval(customRpc, originIsMetaMask) {
+  return async (dispatch) => {
+    try {
+      await promisifiedBackground.requestAddNetworkApproval(
+        customRpc,
+        originIsMetaMask,
+      );
+    } catch (error) {
+      log.error(error);
+      dispatch(displayWarning('Had a problem changing networks!'));
+    }
   };
 }

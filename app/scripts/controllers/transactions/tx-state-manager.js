@@ -6,13 +6,20 @@ import createId from '../../../../shared/modules/random-id';
 import { TRANSACTION_STATUSES } from '../../../../shared/constants/transaction';
 import { METAMASK_CONTROLLER_EVENTS } from '../../metamask-controller';
 import { transactionMatchesNetwork } from '../../../../shared/modules/transaction.utils';
+import { ORIGIN_METAMASK } from '../../../../shared/constants/app';
 import {
   generateHistoryEntry,
   replayHistory,
   snapshotFromTxMeta,
 } from './lib/tx-state-history-helpers';
-import { getFinalStates, normalizeAndValidateTxParams } from './lib/util';
+import {
+  getFinalStates,
+  normalizeAndValidateTxParams,
+  validateConfirmedExternalTransaction,
+} from './lib/util';
 
+export const ERROR_SUBMITTING =
+  'There was an error when resubmitting this transaction.';
 /**
  * TransactionStatuses reimported from the shared transaction constants file
  *
@@ -32,7 +39,7 @@ import { getFinalStates, normalizeAndValidateTxParams } from './lib/util';
  */
 
 /**
- * @typedef {Object} TransactionState
+ * @typedef {object} TransactionState
  * @property {Record<string, TransactionMeta>} transactions - TransactionMeta
  *  keyed by the transaction's id.
  */
@@ -42,7 +49,7 @@ import { getFinalStates, normalizeAndValidateTxParams } from './lib/util';
  * storing the transaction. It also has some convenience methods for finding
  * subsets of transactions.
  *
- * @param {Object} opts
+ * @param {object} opts
  * @param {TransactionState} [opts.initState={ transactions: {} }] - initial
  *  transactions list keyed by id
  * @param {number} [opts.txHistoryLimit] - limit for how many finished
@@ -88,7 +95,7 @@ export default class TransactionStateManager extends EventEmitter {
     if (
       opts.txParams &&
       typeof opts.origin === 'string' &&
-      opts.origin !== 'metamask'
+      opts.origin !== ORIGIN_METAMASK
     ) {
       if (typeof opts.txParams.gasPrice !== 'undefined') {
         dappSuggestedGasFees = {
@@ -122,6 +129,7 @@ export default class TransactionStateManager extends EventEmitter {
       chainId,
       loadingDefaults: true,
       dappSuggestedGasFees,
+      sendFlowHistory: [],
       ...opts,
     };
   }
@@ -245,9 +253,9 @@ export default class TransactionStateManager extends EventEmitter {
     const txsToDelete = transactions
       .reverse()
       .filter((tx) => {
-        const { nonce } = tx.txParams;
+        const { nonce, from } = tx.txParams;
         const { chainId, metamaskNetworkId, status } = tx;
-        const key = `${nonce}-${chainId ?? metamaskNetworkId}`;
+        const key = `${nonce}-${chainId ?? metamaskNetworkId}-${from}`;
         if (nonceNetworkSet.has(key)) {
           return false;
         } else if (
@@ -266,6 +274,19 @@ export default class TransactionStateManager extends EventEmitter {
     return txMeta;
   }
 
+  addExternalTransaction(txMeta) {
+    const fromAddress = txMeta?.txParams?.from;
+    const confirmedTransactions = this.getConfirmedTransactions(fromAddress);
+    const pendingTransactions = this.getPendingTransactions(fromAddress);
+    validateConfirmedExternalTransaction({
+      txMeta,
+      pendingTransactions,
+      confirmedTransactions,
+    });
+    this._addTransactionsToState([txMeta]);
+    return txMeta;
+  }
+
   /**
    * @param {number} txId
    * @returns {TransactionMeta} the txMeta who matches the given id if none found
@@ -279,15 +300,29 @@ export default class TransactionStateManager extends EventEmitter {
   /**
    * updates the txMeta in the list and adds a history entry
    *
-   * @param {Object} txMeta - the txMeta to update
+   * @param {object} txMeta - the txMeta to update
    * @param {string} [note] - a note about the update for history
    */
   updateTransaction(txMeta, note) {
     // normalize and validate txParams if present
     if (txMeta.txParams) {
-      txMeta.txParams = normalizeAndValidateTxParams(txMeta.txParams, false);
+      try {
+        txMeta.txParams = normalizeAndValidateTxParams(txMeta.txParams, false);
+      } catch (error) {
+        if (txMeta.warning.message === ERROR_SUBMITTING) {
+          this.setTxStatusFailed(txMeta.id, error);
+        } else {
+          throw error;
+        }
+
+        return;
+      }
     }
 
+    this._updateTransactionHistory(txMeta, note);
+  }
+
+  _updateTransactionHistory(txMeta, note) {
     // create txMeta snapshot for history
     const currentState = snapshotFromTxMeta(txMeta);
     // recover previous tx state obj
@@ -532,10 +567,11 @@ export default class TransactionStateManager extends EventEmitter {
       rpc: error.value,
       stack: error.stack,
     };
-    this.updateTransaction(
+    this._updateTransactionHistory(
       txMeta,
       'transactions:tx-state-manager#fail - add error',
     );
+
     this._setTransactionStatus(txId, TRANSACTION_STATUSES.FAILED);
   }
 
@@ -619,7 +655,7 @@ export default class TransactionStateManager extends EventEmitter {
 
     txMeta.status = status;
     try {
-      this.updateTransaction(
+      this._updateTransactionHistory(
         txMeta,
         `txStateManager: setting status to ${status}`,
       );

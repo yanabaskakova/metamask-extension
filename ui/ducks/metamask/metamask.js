@@ -11,12 +11,12 @@ import {
   checkNetworkAndAccountSupports1559,
   getAddressBook,
 } from '../../selectors';
-import { updateTransaction } from '../../store/actions';
+import { updateTransactionGasFees } from '../../store/actions';
 import { setCustomGasLimit, setCustomGasPrice } from '../gas/gas.duck';
 import { decGWEIToHexWEI } from '../../helpers/utils/conversions.util';
-import { isEqualCaseInsensitive } from '../../helpers/utils/util';
 
 import { KEYRING_TYPES } from '../../../shared/constants/hardware-wallets';
+import { isEqualCaseInsensitive } from '../../../shared/modules/string-utils';
 
 export default function reduceMetamask(state = {}, action) {
   const metamaskState = {
@@ -209,7 +209,7 @@ const toHexWei = (value, expectHexWei) => {
 };
 
 // Action Creators
-export function updateTransactionGasFees({
+export function updateGasFees({
   gasPrice,
   gasLimit,
   maxPriorityFeePerGas,
@@ -239,7 +239,7 @@ export function updateTransactionGasFees({
       ? addHexPrefix(gasLimit)
       : addHexPrefix(gasLimit.toString(16));
     dispatch(setCustomGasLimit(customGasLimit));
-    await dispatch(updateTransaction(updatedTx));
+    await dispatch(updateTransactionGasFees(updatedTx.id, updatedTx));
   };
 }
 
@@ -257,6 +257,8 @@ export const getWeb3ShimUsageAlertEnabledness = (state) =>
 
 export const getUnconnectedAccountAlertShown = (state) =>
   state.metamask.unconnectedAccountAlertShownOrigins;
+
+export const getPendingTokens = (state) => state.metamask.pendingTokens;
 
 export const getTokens = (state) => state.metamask.tokens;
 
@@ -398,9 +400,9 @@ export function getSeedPhraseBackedUp(state) {
 /**
  * Given the redux state object and an address, finds a keyring that contains that address, if one exists
  *
- * @param {Object} state - the redux state object
+ * @param {object} state - the redux state object
  * @param {string} address - the address to search for among the keyring addresses
- * @returns {Object|undefined} The keyring which contains the passed address, or undefined
+ * @returns {object | undefined} The keyring which contains the passed address, or undefined
  */
 export function findKeyringForAddress(state, address) {
   const keyring = state.metamask.keyrings.find((kr) => {
@@ -418,7 +420,7 @@ export function findKeyringForAddress(state, address) {
 /**
  * Given the redux state object, returns the users preferred ledger transport type
  *
- * @param {Object} state - the redux state object
+ * @param {object} state - the redux state object
  * @returns {string} The users preferred ledger transport type. One of'ledgerLive', 'webhid' or 'u2f'
  */
 export function getLedgerTransportType(state) {
@@ -428,7 +430,7 @@ export function getLedgerTransportType(state) {
 /**
  * Given the redux state object and an address, returns a boolean indicating whether the passed address is part of a Ledger keyring
  *
- * @param {Object} state - the redux state object
+ * @param {object} state - the redux state object
  * @param {string} address - the address to search for among all keyring addresses
  * @returns {boolean} true if the passed address is part of a ledger keyring, and false otherwise
  */
@@ -442,7 +444,7 @@ export function isAddressLedger(state, address) {
  * Given the redux state object, returns a boolean indicating whether the user has any Ledger accounts added to MetaMask (i.e. Ledger keyrings
  * in state)
  *
- * @param {Object} state - the redux state object
+ * @param {object} state - the redux state object
  * @returns {boolean} true if the user has a Ledger account and false otherwise
  */
 export function doesUserHaveALedgerAccount(state) {

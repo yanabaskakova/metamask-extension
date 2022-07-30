@@ -3,7 +3,7 @@ import abi from 'human-standard-token-abi';
 import BigNumber from 'bignumber.js';
 import * as ethUtil from 'ethereumjs-util';
 import { DateTime } from 'luxon';
-import { util } from '@metamask/controllers';
+import { getFormattedIpfsUrl } from '@metamask/controllers/dist/util';
 import slip44 from '@metamask/slip44';
 import { addHexPrefix } from '../../../app/scripts/lib/util';
 import {
@@ -63,14 +63,6 @@ export function isDefaultMetaMaskChain(chainId) {
   }
 
   return false;
-}
-
-// Both inputs should be strings. This method is currently used to compare tokenAddress hex strings.
-export function isEqualCaseInsensitive(value1, value2) {
-  if (typeof value1 !== 'string' || typeof value2 !== 'string') {
-    return false;
-  }
-  return value1.toLowerCase() === value2.toLowerCase();
 }
 
 export function valuesFor(obj) {
@@ -364,7 +356,7 @@ export function addHexPrefixToObjectValues(obj) {
  * @param {string} options.from - A hex address of the tx sender address
  * @param {string} options.gas - A hex representation of the gas value for the transaction
  * @param {string} options.gasPrice - A hex representation of the gas price for the transaction
- * @returns {Object} An object ready for submission to the blockchain, with all values appropriately hex prefixed
+ * @returns {object} An object ready for submission to the blockchain, with all values appropriately hex prefixed
  */
 export function constructTxParams({
   sendToken,
@@ -565,7 +557,7 @@ export function getAssetImageURL(image, ipfsGateway) {
   }
 
   if (image.startsWith('ipfs://')) {
-    return util.getFormattedIpfsUrl(ipfsGateway, image, true);
+    return getFormattedIpfsUrl(ipfsGateway, image, true);
   }
   return image;
 }
@@ -595,4 +587,15 @@ export function coinTypeToProtocolName(coinType) {
     return 'Test Networks';
   }
   return slip44[coinType]?.name || undefined;
+}
+
+/**
+ * Tests "nullishness". Used to guard a section of a component from being
+ * rendered based on a value.
+ *
+ * @param {any} value - A value (literally anything).
+ * @returns `true` if the value is null or undefined, `false` otherwise.
+ */
+export function isNullish(value) {
+  return value === null || value === undefined;
 }

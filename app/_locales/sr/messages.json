@@ -44,12 +44,6 @@
   "addSuggestedTokens": {
     "message": "Dodajte sugerisane tokene"
   },
-  "addToAddressBook": {
-    "message": "Dodaj u adresar"
-  },
-  "addToAddressBookModalPlaceholder": {
-    "message": "npr. John D."
-  },
   "addToken": {
     "message": "Dodaj token"
   },
@@ -139,17 +133,14 @@
     "message": "Pogledajte nalog za $1",
     "description": "$1 replaced by URL for custom block explorer"
   },
-  "blockiesIdenticon": {
-    "message": "Koristite „Blockies Identicon”"
-  },
   "browserNotSupported": {
     "message": "Vaš pregledač nije podržan..."
   },
   "buyWithWyre": {
-    "message": "Kupite ETH preko servisa Wyre"
+    "message": "Kupite $1 preko servisa Wyre"
   },
   "buyWithWyreDescription": {
-    "message": "Wyre vam dozvoljava da koristite kreditnu karticu kako biste deponovali ETH pravo na vaš MetaMask nalog."
+    "message": "Wyre vam dozvoljava da koristite kreditnu karticu kako biste deponovali $1 pravo na vaš MetaMask nalog."
   },
   "bytes": {
     "message": "Bajtovi"
@@ -339,9 +330,6 @@
   },
   "ensRegistrationError": {
     "message": "Greška u registraciji ENS imena."
-  },
-  "enterAnAlias": {
-    "message": "Unesite pseudonim"
   },
   "enterPassword": {
     "message": "Unesite lozinku"
@@ -759,9 +747,6 @@
   "restore": {
     "message": "Поново отвори"
   },
-  "restoreAccountWithSeed": {
-    "message": "Povratite svoj nalog uz pomoć seed fraze"
-  },
   "revealSeedWords": {
     "message": "Otkrivanje početnih reči"
   },
@@ -812,9 +797,6 @@
   },
   "securityAndPrivacy": {
     "message": "Bezbednost i privatnost"
-  },
-  "seedPhrasePlaceholder": {
-    "message": "Odvojite svaku reč jednim razmakom"
   },
   "seedPhraseReq": {
     "message": "Šifre za oporavak naloga (seed phrases) imaju 12 reči"

@@ -14,11 +14,7 @@ import {
   setDefaultHomeActiveTabName,
 } from '../../store/actions';
 import { isBalanceSufficient, calcGasTotal } from '../send/send.utils';
-import {
-  isEqualCaseInsensitive,
-  shortenAddress,
-  valuesFor,
-} from '../../helpers/utils/util';
+import { shortenAddress, valuesFor } from '../../helpers/utils/util';
 import {
   getAdvancedInlineGasShown,
   getCustomNonceValue,
@@ -37,16 +33,19 @@ import {
   getTokenList,
   getIsMultiLayerFeeNetwork,
   getEIP1559V2Enabled,
+  getIsBuyableChain,
+  getEnsResolutionByAddress,
 } from '../../selectors';
 import { getMostRecentOverviewPage } from '../../ducks/history/history';
 import {
   isAddressLedger,
-  updateTransactionGasFees,
+  updateGasFees,
   getIsGasEstimatesLoading,
   getNativeCurrency,
 } from '../../ducks/metamask/metamask';
 
 import {
+  parseStandardTokenTransactionData,
   transactionMatchesNetwork,
   txParamsAreDappSuggested,
 } from '../../../shared/modules/transaction.utils';
@@ -55,6 +54,9 @@ import { toChecksumHexAddress } from '../../../shared/modules/hexstring-utils';
 import { getGasLoadingAnimationIsShowing } from '../../ducks/app/app';
 import { isLegacyTransaction } from '../../helpers/utils/transactions.util';
 import { CUSTOM_GAS_ESTIMATE } from '../../../shared/constants/gas';
+import { TRANSACTION_TYPES } from '../../../shared/constants/transaction';
+import { isEqualCaseInsensitive } from '../../../shared/modules/string-utils';
+import { getTokenAddressParam } from '../../helpers/utils/token-util';
 import ConfirmTransactionBase from './confirm-transaction-base.component';
 
 let customNonceValue = '';
@@ -77,10 +79,9 @@ const mapStateToProps = (state, ownProps) => {
 
   const isGasEstimatesLoading = getIsGasEstimatesLoading(state);
   const gasLoadingAnimationIsShowing = getGasLoadingAnimationIsShowing(state);
-
+  const isBuyableChain = getIsBuyableChain(state);
   const { confirmTransaction, metamask } = state;
   const {
-    ensResolutionsByAddress,
     conversionRate,
     identities,
     addressBook,
@@ -107,20 +108,29 @@ const mapStateToProps = (state, ownProps) => {
   } = (transaction && transaction.txParams) || txParams;
   const accounts = getMetaMaskAccounts(state);
 
+  const transactionData = parseStandardTokenTransactionData(data);
+  const tokenToAddress = getTokenAddressParam(transactionData);
+
   const { balance } = accounts[fromAddress];
   const { name: fromName } = identities[fromAddress];
-  const toAddress = propsToAddress || txParamsToAddress;
+  let toAddress = txParamsToAddress;
+  if (type !== TRANSACTION_TYPES.SIMPLE_SEND) {
+    toAddress = propsToAddress || tokenToAddress || txParamsToAddress;
+  }
 
   const tokenList = getTokenList(state);
   const useTokenDetection = getUseTokenDetection(state);
-  const casedTokenList = useTokenDetection
-    ? tokenList
-    : Object.keys(tokenList).reduce((acc, base) => {
-        return {
-          ...acc,
-          [base.toLowerCase()]: tokenList[base],
-        };
-      }, {});
+  let casedTokenList = tokenList;
+  if (!process.env.TOKEN_DETECTION_V2) {
+    casedTokenList = useTokenDetection
+      ? tokenList
+      : Object.keys(tokenList).reduce((acc, base) => {
+          return {
+            ...acc,
+            [base.toLowerCase()]: tokenList[base],
+          };
+        }, {});
+  }
   const toName =
     identities[toAddress]?.name ||
     casedTokenList[toAddress]?.name ||
@@ -131,7 +141,7 @@ const mapStateToProps = (state, ownProps) => {
     addressBook &&
     addressBook[chainId] &&
     addressBook[chainId][checksummedAddress];
-  const toEns = ensResolutionsByAddress[checksummedAddress] || '';
+  const toEns = getEnsResolutionByAddress(state, checksummedAddress);
   const toNickname = addressBookObject ? addressBookObject.name : '';
   const transactionStatus = transaction ? transaction.status : '';
   const supportsEIP1559 =
@@ -177,7 +187,7 @@ const mapStateToProps = (state, ownProps) => {
   }
 
   const isCollectibleTransfer = Boolean(
-    allCollectibleContracts?.[selectedAddress]?.[chainId].find((contract) => {
+    allCollectibleContracts?.[selectedAddress]?.[chainId]?.find((contract) => {
       return isEqualCaseInsensitive(contract.address, fullTxData.txParams.to);
     }),
   );
@@ -251,6 +261,7 @@ const mapStateToProps = (state, ownProps) => {
     isMultiLayerFeeNetwork,
     chainId,
     eip1559V2Enabled,
+    isBuyableChain,
   };
 };
 
@@ -283,8 +294,9 @@ export const mapDispatchToProps = (dispatch) => {
     setDefaultHomeActiveTabName: (tabName) =>
       dispatch(setDefaultHomeActiveTabName(tabName)),
     updateTransactionGasFees: (gasFees) => {
-      dispatch(updateTransactionGasFees({ ...gasFees, expectHexWei: true }));
+      dispatch(updateGasFees({ ...gasFees, expectHexWei: true }));
     },
+    showBuyModal: () => dispatch(showModal({ name: 'DEPOSIT_ETHER' })),
   };
 };
 

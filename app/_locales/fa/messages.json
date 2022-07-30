@@ -44,12 +44,6 @@
   "addSuggestedTokens": {
     "message": "اضافه رمزیاب های پیشنهاد شده"
   },
-  "addToAddressBook": {
-    "message": "به کتاب آدرسها اضافه کنید"
-  },
-  "addToAddressBookModalPlaceholder": {
-    "message": "مثلًا. John D."
-  },
   "addToken": {
     "message": "یک رمز یاب اضافه کنید"
   },
@@ -139,17 +133,14 @@
     "message": "مشاهده حساب در 1$1",
     "description": "$1 replaced by URL for custom block explorer"
   },
-  "blockiesIdenticon": {
-    "message": "استفاده شناسا بلوک ها"
-  },
   "browserNotSupported": {
     "message": "مرورگر شما پشتیبانی نمیشود"
   },
   "buyWithWyre": {
-    "message": "ETH را توسط Wyre خریداری نمایید"
+    "message": "$1 را توسط Wyre خریداری نمایید"
   },
   "buyWithWyreDescription": {
-    "message": "Wyre به شما اجازه میدهد تا یک کردیت کارت را جهت پرداخت ETH مستقیمًا به حساب MetaMask تان استفاده نمایید."
+    "message": "Wyre به شما اجازه میدهد تا یک کردیت کارت را جهت پرداخت 1$ مستقیمًا به حساب MetaMask تان استفاده نمایید."
   },
   "bytes": {
     "message": "بایت ها"
@@ -342,9 +333,6 @@
   },
   "ensRegistrationError": {
     "message": "خطا در ثبت نام ENS"
-  },
-  "enterAnAlias": {
-    "message": "یک نام مستعار را وارد کنید"
   },
   "enterPassword": {
     "message": "رمز عبور را وارد کنید"
@@ -768,9 +756,6 @@
   "restore": {
     "message": "بازیابی"
   },
-  "restoreAccountWithSeed": {
-    "message": "حساب تان را با عبارت بازیاب، بازیابی کنید"
-  },
   "revealSeedWords": {
     "message": "کلمات بازیاب را آشکار کنید"
   },
@@ -821,9 +806,6 @@
   },
   "securityAndPrivacy": {
     "message": "امنیت و حریم خصوصی"
-  },
-  "seedPhrasePlaceholder": {
-    "message": "هر کلمه را با یک فاصله واحد جدا سازید"
   },
   "seedPhraseReq": {
     "message": "عبارات بازیاب 12 کلمه اند"

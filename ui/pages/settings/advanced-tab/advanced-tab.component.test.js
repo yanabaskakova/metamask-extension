@@ -10,6 +10,7 @@ describe('AdvancedTab Component', () => {
   let component;
   let setAutoLockTimeLimitSpy = sinon.spy();
   const toggleTestnet = sinon.spy();
+  const toggleTokenDetection = sinon.spy();
 
   beforeAll(() => {
     component = shallow(
@@ -27,6 +28,9 @@ describe('AdvancedTab Component', () => {
         setLedgerTransportPreference={() => undefined}
         setDismissSeedBackUpReminder={() => undefined}
         dismissSeedBackUpReminder={false}
+        useTokenDetection
+        setUseTokenDetection={toggleTokenDetection}
+        userHasALedgerAccount
       />,
       {
         context: {
@@ -56,6 +60,9 @@ describe('AdvancedTab Component', () => {
         setDismissSeedBackUpReminder={() => undefined}
         dismissSeedBackUpReminder={false}
         setShowTestNetworks={toggleTestnet}
+        useTokenDetection
+        setUseTokenDetection={toggleTokenDetection}
+        userHasALedgerAccount
       />,
       {
         context: {
@@ -79,5 +86,74 @@ describe('AdvancedTab Component', () => {
     const toggleButton = testNetworks.find(ToggleButton);
     toggleButton.first().simulate('toggle');
     expect(toggleTestnet.calledOnce).toStrictEqual(true);
+  });
+
+  it('should toggle token detection', () => {
+    process.env.TOKEN_DETECTION_V2 = true;
+    component = shallow(
+      <AdvancedTab
+        ipfsGateway=""
+        setAutoLockTimeLimit={setAutoLockTimeLimitSpy}
+        setIpfsGateway={() => undefined}
+        setShowFiatConversionOnTestnetsPreference={() => undefined}
+        setThreeBoxSyncingPermission={() => undefined}
+        setShowTestNetworks={toggleTestnet}
+        showTestNetworks={false}
+        threeBoxDisabled
+        threeBoxSyncingAllowed={false}
+        ledgerTransportType={LEDGER_TRANSPORT_TYPES.U2F}
+        setLedgerTransportPreference={() => undefined}
+        setDismissSeedBackUpReminder={() => undefined}
+        dismissSeedBackUpReminder={false}
+        useTokenDetection
+        setUseTokenDetection={toggleTokenDetection}
+        userHasALedgerAccount
+      />,
+      {
+        context: {
+          trackEvent: () => undefined,
+          t: (s) => `_${s}`,
+        },
+      },
+    );
+    const useTokenDetection = component
+      .find('.settings-page__content-row')
+      .at(4);
+    const toggleButton = useTokenDetection.find(ToggleButton);
+    toggleButton.first().simulate('toggle');
+    expect(toggleTokenDetection.calledOnce).toStrictEqual(true);
+  });
+
+  /** TODO: Remove during TOKEN_DETECTION_V2 feature flag clean up */
+  it('should not show token detection toggle', () => {
+    process.env.TOKEN_DETECTION_V2 = false;
+    component = shallow(
+      <AdvancedTab
+        ipfsGateway=""
+        setAutoLockTimeLimit={setAutoLockTimeLimitSpy}
+        setIpfsGateway={() => undefined}
+        setShowFiatConversionOnTestnetsPreference={() => undefined}
+        setThreeBoxSyncingPermission={() => undefined}
+        setShowTestNetworks={toggleTestnet}
+        showTestNetworks={false}
+        threeBoxDisabled
+        threeBoxSyncingAllowed={false}
+        ledgerTransportType={LEDGER_TRANSPORT_TYPES.U2F}
+        setLedgerTransportPreference={() => undefined}
+        setDismissSeedBackUpReminder={() => undefined}
+        dismissSeedBackUpReminder={false}
+        useTokenDetection
+        setUseTokenDetection={toggleTokenDetection}
+        userHasALedgerAccount
+      />,
+      {
+        context: {
+          trackEvent: () => undefined,
+          t: (s) => `_${s}`,
+        },
+      },
+    );
+    const tokenDetectionText = component.find({ text: 'Token detection' });
+    expect(tokenDetectionText).toHaveLength(0);
   });
 });
