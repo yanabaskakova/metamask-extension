@@ -155,6 +155,8 @@ import {
 } from './controllers/permissions';
 import createRPCMethodTrackingMiddleware from './lib/createRPCMethodTrackingMiddleware';
 
+import { isManifestV3 } from '../../shared/modules/mv3.utils';
+
 export const METAMASK_CONTROLLER_EVENTS = {
   // Fired after state changes that impact the extension badge (unapproved msg count)
   // The process of updating the badge happens in app/scripts/background.js.
@@ -1121,6 +1123,15 @@ export default class MetamaskController extends EventEmitter {
       this.onboardingController.store.getState().completedOnboarding
     ) {
       this.submitPassword(password);
+    }
+
+    // MV3TODO: Try to log in based on storage values
+    if (isManifestV3()) {
+      chrome.storage.session.get(['loginToken'], ({ loginToken }) => {
+        if (loginToken) {
+          this.keyringController.submitEncryptedKey(loginToken);
+        }
+      });
     }
 
     // Lazily update the store with the current extension environment
@@ -2341,7 +2352,12 @@ export default class MetamaskController extends EventEmitter {
    * @returns {Promise<object>} The keyringController update.
    */
   async submitPassword(password) {
-    await this.keyringController.submitPassword(password);
+    const loginToken = await this.keyringController.submitPassword(password);
+
+    // MV3TODO: Store encrypted key for storage
+    if (isManifestV3()) {
+      await chrome.storage.session.set({ loginToken });
+    }
 
     try {
       await this.blockTracker.checkForLatestBlock();
@@ -4338,6 +4354,11 @@ export default class MetamaskController extends EventEmitter {
       KEYRING_TYPES.LEDGER,
     );
     ledgerKeyring?.destroy?.();
+
+    // MV3TODO: Clear session storage; should we just clear relevant key?
+    if (isManifestV3()) {
+      chrome.storage.session.clear();
+    }
 
     return this.keyringController.setLocked();
   }
