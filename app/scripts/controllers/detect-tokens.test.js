@@ -162,7 +162,6 @@ describe('DetectTokensController', function () {
 
   it('should poll on correct interval', async function () {
     const stub = sinon.stub(global, 'setInterval');
-    // sandbox.stub(mv3Utils, 'isManifestV3').returned(false);
     new DetectTokensController({ interval: 1337 }); // eslint-disable-line no-new
     assert.strictEqual(stub.getCall(0).args[1], 1337);
     stub.restore();
@@ -170,7 +169,6 @@ describe('DetectTokensController', function () {
 
   it('should be called on every polling period', async function () {
     const clock = sandbox.useFakeTimers();
-    // sandbox.stub(mv3Utils, 'isManifestV3').returned(false);
     network.setProviderType(MAINNET);
     const controller = new DetectTokensController({
       preferences,
