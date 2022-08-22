@@ -1,0 +1,1 @@
+export const DETECT_TOKEN_ALARM = 'DETECT_TOKEN_ALARM';
