@@ -154,6 +154,7 @@ import {
   ///: END:ONLY_INCLUDE_IN
 } from './controllers/permissions';
 import createRPCMethodTrackingMiddleware from './lib/createRPCMethodTrackingMiddleware';
+import { wordlist as englishWordlist } from '@scure/bip39/wordlists/english';
 
 export const METAMASK_CONTROLLER_EVENTS = {
   // Fired after state changes that impact the extension badge (unapproved msg count)
@@ -2692,7 +2693,6 @@ export default class MetamaskController extends EventEmitter {
     }
 
     const serialized = await primaryKeyring.serialize();
-    const seedPhraseAsBuffer = Buffer.from(serialized.mnemonic);
 
     const accounts = await primaryKeyring.getAccounts();
     if (accounts.length < 1) {
@@ -2700,8 +2700,11 @@ export default class MetamaskController extends EventEmitter {
     }
 
     try {
-      await seedPhraseVerifier.verifyAccounts(accounts, seedPhraseAsBuffer);
-      return Array.from(seedPhraseAsBuffer.values());
+      await seedPhraseVerifier.verifyAccounts(accounts, serialized.mnemonic);
+      const recoveredIndices = Array.from(
+        new Uint16Array(new Uint8Array(serialized.mnemonic).buffer),
+      );
+      return recoveredIndices.map((i) => englishWordlist[i]).join(' ');
     } catch (err) {
       log.error(err.message);
       throw err;

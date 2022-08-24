@@ -48,6 +48,7 @@ import { NOTIFICATIONS_EXPIRATION_DELAY } from '../helpers/constants/notificatio
 ///: END:ONLY_INCLUDE_IN
 import { setNewCustomNetworkAdded } from '../ducks/app/app';
 import * as actionConstants from './actionConstants';
+import { wordlist } from '@scure/bip39/wordlists/english';
 
 let background = null;
 let promisifiedBackground = null;
@@ -148,7 +149,7 @@ export function createNewVaultAndGetSeedPhrase(password) {
 
     try {
       await createNewVault(password);
-      const seedPhrase = await verifySeedPhrase();
+      const seedPhrase = await verifyAndRetrieveSeedPhrase();
       return seedPhrase;
     } catch (error) {
       dispatch(displayWarning(error.message));
@@ -165,7 +166,7 @@ export function unlockAndGetSeedPhrase(password) {
 
     try {
       await submitPassword(password);
-      const seedPhrase = await verifySeedPhrase();
+      const seedPhrase = await verifyAndRetrieveSeedPhrase();
       await forceUpdateMetamaskState(dispatch);
       return seedPhrase;
     } catch (error) {
@@ -216,9 +217,8 @@ export function verifyPassword(password) {
   });
 }
 
-export async function verifySeedPhrase() {
-  const encodedSeedPhrase = await promisifiedBackground.verifySeedPhrase();
-  return Buffer.from(encodedSeedPhrase).toString('utf8');
+export async function verifyAndRetrieveSeedPhrase() {
+  return await promisifiedBackground.verifySeedPhrase();
 }
 
 export function requestRevealSeedWords(password) {
@@ -228,7 +228,7 @@ export function requestRevealSeedWords(password) {
 
     try {
       await verifyPassword(password);
-      const seedPhrase = await verifySeedPhrase();
+      const seedPhrase = await verifyAndRetrieveSeedPhrase();
       return seedPhrase;
     } catch (error) {
       dispatch(displayWarning(error.message));
