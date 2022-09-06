@@ -5,10 +5,7 @@ import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
 import { clearClipboard } from '../../../helpers/utils/util';
 import Copy from '../icon/copy-icon.component';
 
-function ExportTextContainer({
-  text = '',
-  onClickCopy = null,
-}) {
+function ExportTextContainer({ text = '', onClickCopy = null }) {
   const t = useI18nContext();
   const [copied, handleCopy] = useCopyToClipboard();
 

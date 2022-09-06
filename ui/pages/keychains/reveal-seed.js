@@ -171,7 +171,7 @@ class RevealSeedPage extends Component {
             type="primary"
             large
             className="page-container__footer-button"
-            onClick={(event) => {
+            onClick={() => {
               this.context.trackEvent({
                 category: EVENT.CATEGORIES.KEYS,
                 event: EVENT_NAMES.KEY_EXPORT_REQUESTED,
@@ -179,7 +179,7 @@ class RevealSeedPage extends Component {
                   key_type: EVENT.KEY_TYPES.SRP,
                 },
               });
-              this.setState({ showPopover: true })
+              this.setState({ showPopover: true });
             }}
             disabled={this.state.password === ''}
           >
