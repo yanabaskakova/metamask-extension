@@ -40,6 +40,10 @@ jest.mock('react-router-dom', () => {
   };
 });
 
+setBackgroundConnection({
+  getGasFeeTimeEstimate: jest.fn(),
+});
+
 jest.mock('ethers', () => {
   const originalModule = jest.requireActual('ethers');
   return {
@@ -62,6 +66,14 @@ const baseStore = {
   },
   history: { mostRecentOverviewPage: 'activity' },
   metamask: {
+    unapprovedTxs: {
+      1: {
+        id: 1,
+        txParams: {
+          value: 'oldTxValue',
+        },
+      },
+    },
     gasEstimateType: GAS_ESTIMATE_TYPES.LEGACY,
     gasFeeEstimates: {
       low: '0',
