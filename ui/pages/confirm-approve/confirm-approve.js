@@ -279,6 +279,7 @@ export default function ConfirmApprove({
           }
           hideSenderToRecipient
           customTxParamsData={customData}
+          assetStandard={assetStandard}
         />
       </GasFeeContextProvider>
     )
