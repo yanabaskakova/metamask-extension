@@ -8,7 +8,7 @@ import IconBlockExplorer from '../../../ui/icon/icon-block-explorer';
 import Button from '../../../ui/button/button.component';
 import Tooltip from '../../../ui/tooltip/tooltip';
 import { useI18nContext } from '../../../../hooks/useI18nContext';
-import Identicon from '../../../ui/identicon/identicon.component';
+import Identicon from '../../../ui/identicon';
 import { ellipsify } from '../../../../pages/send/send.utils';
 import Popover from '../../../ui/popover';
 import Typography from '../../../ui/typography';
@@ -31,12 +31,23 @@ export default function ContractDetailsModal({
   toAddress,
   chainId,
   userAddress,
-  contractTitle,
-  contractRequesting,
+  rpcPrefs,
+  isContract,
+  isSetApproveForAll,
 }) {
   const t = useI18nContext();
   const [copied, handleCopy] = useCopyToClipboard();
   const tokenList = useSelector(getTokenList);
+
+  let contractTitle;
+  let contractRequesting;
+  if (isSetApproveForAll) {
+    contractTitle = t('contractNFT');
+    contractRequesting = t('contractRequestingAccess');
+  } else {
+    contractTitle = t('contractToken');
+    contractRequesting = t('contractRequestingSpendingCap');
+  }
 
   return (
     <Popover className="contract-details-modal">
@@ -69,7 +80,7 @@ export default function ContractDetailsModal({
           marginTop={4}
           marginBottom={2}
         >
-          {contractTitle || t('contractToken')}
+          {contractTitle}
         </Typography>
         <Box
           display={DISPLAY.FLEX}
@@ -80,9 +91,8 @@ export default function ContractDetailsModal({
         >
           <Identicon
             className="contract-details-modal__content__contract__identicon"
-            address={tokenAddress}
-            image={tokenList[tokenAddress?.toLowerCase()]?.iconUrl}
             diameter={24}
+            address={tokenAddress}
           />
           <Box data-testid="recipient">
             <Typography
@@ -132,6 +142,9 @@ export default function ContractDetailsModal({
                       chainId,
                       null,
                       userAddress,
+                      {
+                        blockExplorerUrl: rpcPrefs?.blockExplorerUrl ?? null,
+                      },
                     );
                     global.platform.openTab({
                       url: blockExplorerLink,
@@ -154,7 +167,7 @@ export default function ContractDetailsModal({
           marginTop={4}
           marginBottom={2}
         >
-          {contractRequesting || t('contractRequestingSpendingCap')}
+          {contractRequesting}
         </Typography>
         <Box
           display={DISPLAY.FLEX}
@@ -165,8 +178,8 @@ export default function ContractDetailsModal({
         >
           <Identicon
             className="contract-details-modal__content__contract__identicon"
-            address={userAddress}
             diameter={24}
+            address={toAddress}
           />
           <Box data-testid="recipient">
             <Typography
@@ -211,10 +224,26 @@ export default function ContractDetailsModal({
                   className="contract-details-modal__content__contract__buttons__block-explorer"
                   type="link"
                   onClick={() => {
-                    const blockExplorerTokenLink = getAccountLink(
-                      toAddress,
-                      chainId,
-                    );
+                    const blockExplorerTokenLink = isContract
+                      ? getTokenTrackerLink(
+                          toAddress,
+                          chainId,
+                          null,
+                          userAddress,
+                          {
+                            blockExplorerUrl:
+                              rpcPrefs?.blockExplorerUrl ?? null,
+                          },
+                        )
+                      : getAccountLink(
+                          toAddress,
+                          chainId,
+                          {
+                            blockExplorerUrl:
+                              rpcPrefs?.blockExplorerUrl ?? null,
+                          },
+                          null,
+                        );
                     global.platform.openTab({
                       url: blockExplorerTokenLink,
                     });
@@ -257,6 +286,7 @@ ContractDetailsModal.propTypes = {
   toAddress: PropTypes.string,
   chainId: PropTypes.string,
   userAddress: PropTypes.string,
-  contractTitle: PropTypes.string,
-  contractRequesting: PropTypes.string,
+  rpcPrefs: PropTypes.object,
+  isContract: PropTypes.bool,
+  isSetApproveForAll: PropTypes.bool,
 };
