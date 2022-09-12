@@ -207,6 +207,7 @@ export default class ConfirmPageContainer extends Component {
               accountBalance={accountBalance}
               tokenName={nativeCurrency}
               accountAddress={fromAddress}
+              networkName={networkName}
             />
           ) : (
             <ConfirmPageContainerHeader
