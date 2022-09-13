@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
-import { getAccountLink, getTokenTrackerLink } from '@metamask/etherscan-link';
+import { getAccountLink } from '@metamask/etherscan-link';
 import Box from '../../../ui/box';
 import IconCopy from '../../../ui/icon/icon-copy';
 import IconBlockExplorer from '../../../ui/icon/icon-block-explorer';
@@ -30,9 +30,7 @@ export default function ContractDetailsModal({
   tokenAddress,
   toAddress,
   chainId,
-  userAddress,
   rpcPrefs,
-  isContract,
   isSetApproveForAll,
 }) {
   const t = useI18nContext();
@@ -137,17 +135,16 @@ export default function ContractDetailsModal({
                   className="contract-details-modal__content__contract__buttons__block-explorer"
                   type="link"
                   onClick={() => {
-                    const blockExplorerLink = getTokenTrackerLink(
+                    const blockExplorerTokenLink = getAccountLink(
                       tokenAddress,
                       chainId,
-                      null,
-                      userAddress,
                       {
                         blockExplorerUrl: rpcPrefs?.blockExplorerUrl ?? null,
                       },
+                      null,
                     );
                     global.platform.openTab({
-                      url: blockExplorerLink,
+                      url: blockExplorerTokenLink,
                     });
                   }}
                 >
@@ -187,9 +184,10 @@ export default function ContractDetailsModal({
               variant={TYPOGRAPHY.H5}
               marginTop={4}
             >
-              {tokenList[toAddress.toLowerCase()]?.name || ellipsify(toAddress)}
+              {tokenList[toAddress.toLowerCase()]?.symbol ||
+                ellipsify(toAddress)}
             </Typography>
-            {tokenList[toAddress.toLowerCase()]?.name && (
+            {tokenList[toAddress.toLowerCase()]?.symbol && (
               <Typography
                 variant={TYPOGRAPHY.H6}
                 display={DISPLAY.FLEX}
@@ -224,28 +222,16 @@ export default function ContractDetailsModal({
                   className="contract-details-modal__content__contract__buttons__block-explorer"
                   type="link"
                   onClick={() => {
-                    const blockExplorerTokenLink = isContract
-                      ? getTokenTrackerLink(
-                          toAddress,
-                          chainId,
-                          null,
-                          userAddress,
-                          {
-                            blockExplorerUrl:
-                              rpcPrefs?.blockExplorerUrl ?? null,
-                          },
-                        )
-                      : getAccountLink(
-                          toAddress,
-                          chainId,
-                          {
-                            blockExplorerUrl:
-                              rpcPrefs?.blockExplorerUrl ?? null,
-                          },
-                          null,
-                        );
+                    const blockExplorerToAddress = getAccountLink(
+                      toAddress,
+                      chainId,
+                      {
+                        blockExplorerUrl: rpcPrefs?.blockExplorerUrl ?? null,
+                      },
+                      null,
+                    );
                     global.platform.openTab({
-                      url: blockExplorerTokenLink,
+                      url: blockExplorerToAddress,
                     });
                   }}
                 >
@@ -285,8 +271,6 @@ ContractDetailsModal.propTypes = {
   tokenAddress: PropTypes.string,
   toAddress: PropTypes.string,
   chainId: PropTypes.string,
-  userAddress: PropTypes.string,
   rpcPrefs: PropTypes.object,
-  isContract: PropTypes.bool,
   isSetApproveForAll: PropTypes.bool,
 };
