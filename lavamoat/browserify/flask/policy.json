@@ -3428,10 +3428,210 @@
       "packages": {
         "@metamask/controllers": true,
         "@metamask/controllers>isomorphic-fetch": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bignumber": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers": true,
         "@metamask/smart-transactions-controller>bignumber.js": true,
         "@metamask/smart-transactions-controller>fast-json-patch": true,
-        "ethers": true,
         "lodash": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/bignumber": {
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/bignumber>bn.js": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes>@ethersproject/logger": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/bignumber>bn.js": {
+      "globals": {
+        "Buffer": true
+      },
+      "packages": {
+        "browserify>browser-resolve": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/bytes": {
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/bytes>@ethersproject/logger": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/bytes>@ethersproject/logger": {
+      "globals": {
+        "console": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers": {
+      "globals": {
+        "WebSocket": true,
+        "clearInterval": true,
+        "clearTimeout": true,
+        "console.log": true,
+        "console.warn": true,
+        "setInterval": true,
+        "setTimeout": true
+      },
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/bignumber": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes>@ethersproject/logger": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/abstract-provider": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/abstract-signer": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/address": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/base64": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/basex": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/constants": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/hash": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/networks": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/properties": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/random": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/sha2": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/strings": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/transactions": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/web": true,
+        "ethers>@ethersproject/providers>bech32": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/abstract-provider": {
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/bignumber": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes>@ethersproject/logger": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/properties": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/abstract-signer": {
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/bytes>@ethersproject/logger": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/properties": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/address": {
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/bignumber": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes>@ethersproject/logger": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/hash>@ethersproject/keccak256": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/rlp": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/base64": {
+      "globals": {
+        "atob": true,
+        "btoa": true
+      },
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/base64>@ethersproject/bytes": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/base64>@ethersproject/bytes": {
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/base64>@ethersproject/bytes>@ethersproject/logger": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/base64>@ethersproject/bytes>@ethersproject/logger": {
+      "globals": {
+        "console": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/basex": {
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/bytes": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/properties": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/constants": {
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/bignumber": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/hash": {
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/bignumber": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes>@ethersproject/logger": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/address": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/base64": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/hash>@ethersproject/keccak256": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/properties": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/strings": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/hash>@ethersproject/keccak256": {
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/bytes": true,
+        "ethers>@ethersproject/keccak256>js-sha3": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/networks": {
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/bytes>@ethersproject/logger": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/properties": {
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/bytes>@ethersproject/logger": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/random": {
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/bytes": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes>@ethersproject/logger": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/rlp": {
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/bytes": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes>@ethersproject/logger": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/sha2": {
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/bytes": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes>@ethersproject/logger": true,
+        "ethers>@ethersproject/sha2>hash.js": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/strings": {
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/bytes": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes>@ethersproject/logger": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/constants": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/transactions": {
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/bignumber": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes>@ethersproject/logger": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/address": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/constants": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/hash>@ethersproject/keccak256": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/properties": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/rlp": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/transactions>@ethersproject/signing-key": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/transactions>@ethersproject/signing-key": {
+      "packages": {
+        "3box>ethers>elliptic": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes>@ethersproject/logger": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/properties": true
+      }
+    },
+    "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/web": {
+      "globals": {
+        "clearTimeout": true,
+        "fetch": true,
+        "setTimeout": true
+      },
+      "packages": {
+        "@metamask/smart-transactions-controller>@ethersproject/bytes": true,
+        "@metamask/smart-transactions-controller>@ethersproject/bytes>@ethersproject/logger": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/base64": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/properties": true,
+        "@metamask/smart-transactions-controller>@ethersproject/providers>@ethersproject/strings": true
       }
     },
     "@metamask/smart-transactions-controller>@metamask/controllers>nanoid": {
@@ -5918,11 +6118,20 @@
         "setTimeout": true
       },
       "packages": {
-        "ethers>@ethersproject/base64": true,
         "ethers>@ethersproject/bytes": true,
         "ethers>@ethersproject/logger": true,
         "ethers>@ethersproject/properties": true,
-        "ethers>@ethersproject/strings": true
+        "ethers>@ethersproject/strings": true,
+        "ethers>@ethersproject/web>@ethersproject/base64": true
+      }
+    },
+    "ethers>@ethersproject/web>@ethersproject/base64": {
+      "globals": {
+        "atob": true,
+        "btoa": true
+      },
+      "packages": {
+        "ethers>@ethersproject/bytes": true
       }
     },
     "ethers>@ethersproject/wordlists": {
