@@ -700,13 +700,14 @@ export default class MetamaskController extends EventEmitter {
       },
       checkBlockList: async (snapsToCheck) => {
         return Object.entries(snapsToCheck).reduce(
-          (acc, [snapId, snapVersion]) => {
+          (acc, [snapId, snapInfo]) => {
             const blockInfo = SNAP_BLOCKLIST.find(
               (blocked) =>
-                blocked.id === snapId &&
-                satisfiesSemver(snapVersion, blocked.versionRange, {
-                  includePrerelease: true,
-                }),
+                (blocked.id === snapId &&
+                  satisfiesSemver(snapInfo.snapVersion, blocked.versionRange, {
+                    includePrerelease: true,
+                  })) ||
+                blocked.shasum === snapInfo.sourceShaSum,
             );
 
             const cur = blockInfo
