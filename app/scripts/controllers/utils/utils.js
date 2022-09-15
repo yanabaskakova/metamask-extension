@@ -17,7 +17,7 @@ async function checkSnapsBlockList(snapsToCheck) {
           satisfiesSemver(snapInfo.snapVersion, blocked.versionRange, {
             includePrerelease: true,
           })) ||
-        blocked.shasum === snapInfo.sourceShaSum,
+        (blocked.shasum ? blocked.shasum === snapInfo.sourceShaSum : false),
     );
 
     const cur = blockInfo
