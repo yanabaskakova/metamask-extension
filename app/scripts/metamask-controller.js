@@ -51,7 +51,6 @@ import {
   SnapController,
   IframeExecutionService,
 } from '@metamask/snap-controllers';
-import { satisfies as satisfiesSemver } from 'semver';
 ///: END:ONLY_INCLUDE_IN
 
 import {
@@ -154,6 +153,9 @@ import {
   ///: END:ONLY_INCLUDE_IN
 } from './controllers/permissions';
 import createRPCMethodTrackingMiddleware from './lib/createRPCMethodTrackingMiddleware';
+///: BEGIN:ONLY_INCLUDE_IN(flask)
+import { checkSnapsBlockList } from './controllers/utils/utils';
+///: END:ONLY_INCLUDE_IN
 
 export const METAMASK_CONTROLLER_EVENTS = {
   // Fired after state changes that impact the extension badge (unapproved msg count)
@@ -683,13 +685,6 @@ export default class MetamaskController extends EventEmitter {
       ],
     });
 
-    const SNAP_BLOCKLIST = [
-      {
-        id: 'npm:@consensys/starknet-snap',
-        versionRange: '<0.1.11',
-      },
-    ];
-
     this.snapController = new SnapController({
       environmentEndowmentPermissions: Object.values(EndowmentPermissions),
       closeAllConnections: this.removeAllConnections.bind(this),
@@ -698,30 +693,7 @@ export default class MetamaskController extends EventEmitter {
         await this.appStateController.getUnlockPromise(true);
         return this.getAppKeyForSubject(`${appKeyType}:${subject}`);
       },
-      checkBlockList: async (snapsToCheck) => {
-        return Object.entries(snapsToCheck).reduce(
-          (acc, [snapId, snapInfo]) => {
-            const blockInfo = SNAP_BLOCKLIST.find(
-              (blocked) =>
-                (blocked.id === snapId &&
-                  satisfiesSemver(snapInfo.snapVersion, blocked.versionRange, {
-                    includePrerelease: true,
-                  })) ||
-                blocked.shasum === snapInfo.sourceShaSum,
-            );
-
-            const cur = blockInfo
-              ? {
-                  blocked: true,
-                  reason: blockInfo.reason,
-                  infoUrl: blockInfo.infoUrl,
-                }
-              : { blocked: false };
-            return { ...acc, [snapId]: cur };
-          },
-          {},
-        );
-      },
+      checkBlockList: checkSnapsBlockList,
       state: initState.SnapController,
       messenger: snapControllerMessenger,
       featureFlags: { dappsCanUpdateSnaps: true },
