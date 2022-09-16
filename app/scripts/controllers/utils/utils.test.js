@@ -6,16 +6,16 @@ describe('Controller utilities', function () {
     it('returns one of the given snaps as blocked by its version', async function () {
       const mockSnapsToBeChecked = {
         'npm:exampleA': {
-          snapVersion: '1.0.0',
-          sourceShaSum: 'F5IapP6v1Bp7bl16NkCszfOhtVSZAm362X5zl7wgMhI=',
+          version: '1.0.0',
+          shasum: 'F5IapP6v1Bp7bl16NkCszfOhtVSZAm362X5zl7wgMhI=',
         },
         'npm:exampleB': {
-          snapVersion: '1.0.0',
-          sourceShaSum: 'eCYGZiYvZ3/uxkKI3npfl79kTQXS/5iD9ojsBS4A3rI=',
+          version: '1.0.0',
+          shasum: 'eCYGZiYvZ3/uxkKI3npfl79kTQXS/5iD9ojsBS4A3rI=',
         },
         'npm:@consensys/starknet-snap': {
-          snapVersion: '0.1.10',
-          sourceShaSum: 'A83r5/ZIcKuKwuAnQHHByVFCuofj7jGK5hOStmHY6A0=',
+          version: '0.1.10',
+          shasum: 'A83r5/ZIcKuKwuAnQHHByVFCuofj7jGK5hOStmHY6A0=',
         },
       };
 
@@ -34,8 +34,8 @@ describe('Controller utilities', function () {
     it('returns given snap as blocked by its shasum', async function () {
       const mockSnapsToBeChecked = {
         'npm:@consensys/starknet-snap': {
-          snapVersion: '0.3.15', // try to fake version with the same source sha
-          sourceShaSum: 'A83r5/ZIcKuKwuAnQHHByVFCuofj7jGK5hOStmHY6A0=',
+          version: '0.3.15', // try to fake version with the same source sha
+          shasum: 'A83r5/ZIcKuKwuAnQHHByVFCuofj7jGK5hOStmHY6A0=',
         },
       };
 
@@ -52,8 +52,8 @@ describe('Controller utilities', function () {
     it('returns false for blocked for the same blocklisted snap but different version', async function () {
       const mockSnapsToBeChecked = {
         'npm:@consensys/starknet-snap': {
-          snapVersion: '0.2.1',
-          sourceShaSum: 'Z4jo37WG1E2rxqF05WaXOSUDxR5upUmOdaTvmgVY/L0=',
+          version: '0.2.1',
+          shasum: 'Z4jo37WG1E2rxqF05WaXOSUDxR5upUmOdaTvmgVY/L0=',
         },
       };
 
@@ -68,16 +68,16 @@ describe('Controller utilities', function () {
     it('returns false for blocked for multiple snaps that are not on the blocklist', async function () {
       const mockSnapsToBeChecked = {
         'npm:exampleA': {
-          snapVersion: '1.0.0',
-          sourceShaSum: 'F5IapP6v1Bp7bl16NkCszfOhtVSZAm362X5zl7wgMhI=',
+          version: '1.0.0',
+          shasum: 'F5IapP6v1Bp7bl16NkCszfOhtVSZAm362X5zl7wgMhI=',
         },
         'npm:exampleB': {
-          snapVersion: '2.1.3',
-          sourceShaSum: 'eCYGZiYvZ3/uxkKI3npfl79kTQXS/5iD9ojsBS4A3rI=',
+          version: '2.1.3',
+          shasum: 'eCYGZiYvZ3/uxkKI3npfl79kTQXS/5iD9ojsBS4A3rI=',
         },
         'npm:exampleC': {
-          snapVersion: '3.7.9',
-          sourceShaSum: '2QqUxo5joo4kKKr7yiCjdYsZOZcIFBnIBEdwU9Yx7+M=',
+          version: '3.7.9',
+          shasum: '2QqUxo5joo4kKKr7yiCjdYsZOZcIFBnIBEdwU9Yx7+M=',
         },
       };
 

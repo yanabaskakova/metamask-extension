@@ -14,10 +14,10 @@ async function checkSnapsBlockList(snapsToCheck) {
     const blockInfo = SNAP_BLOCKLIST.find(
       (blocked) =>
         (blocked.id === snapId &&
-          satisfiesSemver(snapInfo.snapVersion, blocked.versionRange, {
+          satisfiesSemver(snapInfo.version, blocked.versionRange, {
             includePrerelease: true,
           })) ||
-        (blocked.shasum ? blocked.shasum === snapInfo.sourceShaSum : false),
+        (blocked.shasum ? blocked.shasum === snapInfo.shasum : false),
     );
 
     const cur = blockInfo
