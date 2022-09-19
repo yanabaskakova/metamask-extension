@@ -73,9 +73,12 @@ const getPlatform = () => {
  * Converts a hex string to a BN object
  *
  * @param {string} inputHex - A number represented as a hex string
- * @returns {object} A BN object
+ * @returns {object | undefined} A BN object
  */
 function hexToBn(inputHex) {
+  if (!inputHex || typeof inputHex !== 'string') {
+    return undefined;
+  }
   return new BN(stripHexPrefix(inputHex), 16);
 }
 
@@ -85,9 +88,12 @@ function hexToBn(inputHex) {
  * @param {BN} targetBN - The number to multiply by a fraction
  * @param {number|string} numerator - The numerator of the fraction multiplier
  * @param {number|string} denominator - The denominator of the fraction multiplier
- * @returns {BN} The product of the multiplication
+ * @returns {BN | undefined} The product of the multiplication
  */
 function BnMultiplyByFraction(targetBN, numerator, denominator) {
+  if (!targetBN || !numerator || !denominator) {
+    return undefined;
+  }
   const numBN = new BN(numerator);
   const denomBN = new BN(denominator);
   return targetBN.mul(numBN).div(denomBN);
@@ -138,9 +144,12 @@ const addHexPrefix = (str) => {
  * Converts a BN object to a hex string with a '0x' prefix
  *
  * @param {BN} inputBn - The BN to convert to a hex string
- * @returns {string} A '0x' prefixed hex string
+ * @returns {string | undefined} A '0x' prefixed hex string
  */
 function bnToHex(inputBn) {
+  if (!inputBn) {
+    return undefined;
+  }
   return addHexPrefix(inputBn.toString(16));
 }
 
