@@ -15,6 +15,9 @@ async function checkSnapsBlockList(snapsToCheck, blocklist) {
           satisfiesSemver(snapInfo.version, blocked.versionRange, {
             includePrerelease: true,
           })) ||
+        // Check for null/undefined for a case in which SnapController did not return
+        // a valid message. This will avoid blocking all snaps in the given case.
+        // Avoid having (undefined === undefined).
         (blocked.shasum ? blocked.shasum === snapInfo.shasum : false),
     );
 
