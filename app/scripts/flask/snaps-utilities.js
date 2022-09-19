@@ -21,14 +21,14 @@ async function checkSnapsBlockList(snapsToCheck, blocklist) {
         (blocked.shasum ? blocked.shasum === snapInfo.shasum : false),
     );
 
-    const cur = blockInfo
+    acc[snapId] = blockInfo
       ? {
           blocked: true,
           reason: blockInfo.reason,
           infoUrl: blockInfo.infoUrl,
         }
       : { blocked: false };
-    return { ...acc, [snapId]: cur };
+    return acc;
   }, {});
 }
 
