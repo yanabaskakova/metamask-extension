@@ -155,6 +155,7 @@ import {
 import createRPCMethodTrackingMiddleware from './lib/createRPCMethodTrackingMiddleware';
 ///: BEGIN:ONLY_INCLUDE_IN(flask)
 import { checkSnapsBlockList } from './flask/snaps-utilities';
+import { SNAP_BLOCKLIST } from './flask/snaps-blocklist';
 ///: END:ONLY_INCLUDE_IN
 
 export const METAMASK_CONTROLLER_EVENTS = {
@@ -693,7 +694,9 @@ export default class MetamaskController extends EventEmitter {
         await this.appStateController.getUnlockPromise(true);
         return this.getAppKeyForSubject(`${appKeyType}:${subject}`);
       },
-      checkBlockList: checkSnapsBlockList,
+      checkBlockList: async (snapsToCheck) => {
+        return checkSnapsBlockList(snapsToCheck, SNAP_BLOCKLIST);
+      },
       state: initState.SnapController,
       messenger: snapControllerMessenger,
       featureFlags: { dappsCanUpdateSnaps: true },

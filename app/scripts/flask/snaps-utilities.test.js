@@ -4,6 +4,12 @@ import { checkSnapsBlockList } from './snaps-utilities';
 describe('Snaps Controller utilities', function () {
   describe('checkSnapsBlockList', function () {
     it('returns one of the given snaps as blocked by its version', async function () {
+      const mockBlocklist = [
+        {
+          id: 'npm:@consensys/starknet-snap',
+          versionRange: '<0.1.11',
+        },
+      ];
       const mockSnapsToBeChecked = {
         'npm:exampleA': {
           version: '1.0.0',
@@ -19,7 +25,10 @@ describe('Snaps Controller utilities', function () {
         },
       };
 
-      const blockedSnaps = await checkSnapsBlockList(mockSnapsToBeChecked);
+      const blockedSnaps = await checkSnapsBlockList(
+        mockSnapsToBeChecked,
+        mockBlocklist,
+      );
       assert.deepEqual(blockedSnaps, {
         'npm:exampleA': { blocked: false },
         'npm:exampleB': { blocked: false },
@@ -32,6 +41,11 @@ describe('Snaps Controller utilities', function () {
     });
 
     it('returns given snap as blocked by its shasum', async function () {
+      const mockBlocklist = [
+        {
+          shasum: 'A83r5/ZIcKuKwuAnQHHByVFCuofj7jGK5hOStmHY6A0=',
+        },
+      ];
       const mockSnapsToBeChecked = {
         'npm:@consensys/starknet-snap': {
           version: '0.3.15', // try to fake version with the same source sha
@@ -39,7 +53,10 @@ describe('Snaps Controller utilities', function () {
         },
       };
 
-      const blockedSnaps = await checkSnapsBlockList(mockSnapsToBeChecked);
+      const blockedSnaps = await checkSnapsBlockList(
+        mockSnapsToBeChecked,
+        mockBlocklist,
+      );
       assert.deepEqual(blockedSnaps, {
         'npm:@consensys/starknet-snap': {
           blocked: true,
@@ -50,6 +67,12 @@ describe('Snaps Controller utilities', function () {
     });
 
     it('returns false for blocked for the same blocklisted snap but different version', async function () {
+      const mockBlocklist = [
+        {
+          id: 'npm:@consensys/starknet-snap',
+          versionRange: '<0.1.11',
+        },
+      ];
       const mockSnapsToBeChecked = {
         'npm:@consensys/starknet-snap': {
           version: '0.2.1',
@@ -57,7 +80,10 @@ describe('Snaps Controller utilities', function () {
         },
       };
 
-      const blockedSnaps = await checkSnapsBlockList(mockSnapsToBeChecked);
+      const blockedSnaps = await checkSnapsBlockList(
+        mockSnapsToBeChecked,
+        mockBlocklist,
+      );
       assert.deepEqual(blockedSnaps, {
         'npm:@consensys/starknet-snap': {
           blocked: false,
@@ -66,6 +92,12 @@ describe('Snaps Controller utilities', function () {
     });
 
     it('returns false for blocked for multiple snaps that are not on the blocklist', async function () {
+      const mockBlocklist = [
+        {
+          id: 'npm:@consensys/starknet-snap',
+          versionRange: '<0.1.11',
+        },
+      ];
       const mockSnapsToBeChecked = {
         'npm:exampleA': {
           version: '1.0.0',
@@ -81,7 +113,10 @@ describe('Snaps Controller utilities', function () {
         },
       };
 
-      const blockedSnaps = await checkSnapsBlockList(mockSnapsToBeChecked);
+      const blockedSnaps = await checkSnapsBlockList(
+        mockSnapsToBeChecked,
+        mockBlocklist,
+      );
       assert.deepEqual(blockedSnaps, {
         'npm:exampleA': { blocked: false },
         'npm:exampleB': { blocked: false },
