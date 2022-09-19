@@ -154,7 +154,7 @@ import {
 } from './controllers/permissions';
 import createRPCMethodTrackingMiddleware from './lib/createRPCMethodTrackingMiddleware';
 ///: BEGIN:ONLY_INCLUDE_IN(flask)
-import { checkSnapsBlockList } from './controllers/utils/utils';
+import { checkSnapsBlockList } from './flask/snaps-utilities';
 ///: END:ONLY_INCLUDE_IN
 
 export const METAMASK_CONTROLLER_EVENTS = {

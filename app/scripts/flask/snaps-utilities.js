@@ -1,7 +1,5 @@
-///: BEGIN:ONLY_INCLUDE_IN(flask)
 import { satisfies as satisfiesSemver } from 'semver';
-import { SNAP_BLOCKLIST } from '../../constants/snaps-blocklist';
-///: END:ONLY_INCLUDE_IN
+import { SNAP_BLOCKLIST } from './snaps-blocklist';
 
 /**
  * Checks if provided snaps are on the block list.

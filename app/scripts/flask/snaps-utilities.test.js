@@ -1,7 +1,7 @@
 import { strict as assert } from 'assert';
-import { checkSnapsBlockList } from './utils';
+import { checkSnapsBlockList } from './snaps-utilities';
 
-describe('Controller utilities', function () {
+describe('Snaps Controller utilities', function () {
   describe('checkSnapsBlockList', function () {
     it('returns one of the given snaps as blocked by its version', async function () {
       const mockSnapsToBeChecked = {

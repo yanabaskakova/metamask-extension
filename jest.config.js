@@ -41,7 +41,7 @@ module.exports = {
     '<rootDir>/app/scripts/platforms/*.test.js',
     '<rootDir>app/scripts/controllers/network/**/*.test.js',
     '<rootDir>/app/scripts/controllers/permissions/**/*.test.js',
-    '<rootDir>/app/scripts/controllers/utils/**/*.test.js',
+    '<rootDir>/app/scripts/flask/**/*.test.js',
     '<rootDir>/app/scripts/lib/createRPCMethodTrackingMiddleware.test.js',
   ],
   testTimeout: 2500,
