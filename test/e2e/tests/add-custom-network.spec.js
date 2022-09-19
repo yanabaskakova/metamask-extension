@@ -2,11 +2,11 @@ const { strict: assert } = require('assert');
 const { convertToHexValue, withFixtures } = require('../helpers');
 
 describe('Custom network', function () {
-  const chainID = 42161;
-  const networkURL = 'https://arbitrum-mainnet.infura.io';
-  const networkNAME = 'Arbitrum One';
-  const currencySYMBOL = 'AETH';
-  const blockExplorerURL = 'https://explorer.arbitrum.io';
+  const chainID = 43114;
+  const networkURL = 'https://avalanche-mainnet.infura.io';
+  const networkNAME = 'Avalanche Network C-Chain';
+  const currencySYMBOL = 'AVAX';
+  const blockExplorerURL = 'https://snowtrace.io/';
   const ganacheOptions = {
     accounts: [
       {
@@ -53,12 +53,12 @@ describe('Custom network', function () {
 
         // verify network details
         const title = await driver.findElement({
-          tag: 'span',
-          text: 'Arbitrum One',
+          tag: 'h6',
+          text: 'Avalanche Network C-Chain',
         });
         assert.equal(
           await title.getText(),
-          'Arbitrum One',
+          'Avalanche Network C-Chain',
           'Title of popup should be selected network',
         );
 
@@ -100,17 +100,22 @@ describe('Custom network', function () {
 
         await driver.clickElement({
           tag: 'h6',
-          text: 'Switch to Arbitrum One',
+          text: 'Switch to Avalanche Network C-Chain',
+        });
+
+        await driver.clickElement({
+          tag : 'button',
+          text : 'Got it'
         });
 
         // verify network switched
         const networkDisplayed = await driver.findElement({
-          tag: 'span',
-          text: 'Arbitrum One',
+          tag: 'h6',
+          text: 'Avalanche Network C-Chain',
         });
         assert.equal(
           await networkDisplayed.getText(),
-          'Arbitrum One',
+          'Avalanche Network C-Chain',
           'You have not switched to Arbitrum Network',
         );
       },
@@ -158,15 +163,15 @@ describe('Custom network', function () {
           text: 'Dismiss',
         });
 
-        // verify if added network is in list of networks
+        // verify if added network is in list of networks 
         const networkDisplay = await driver.findElement('.network-display');
         await networkDisplay.click();
 
-        const avalancheNetwork = await driver.findElements({
+        const arbitrumOne = await driver.findElements({
           text: `Arbitrum One`,
-          tag: 'span',
+          tag: 'h6',
         });
-        assert.ok(avalancheNetwork.length, 1);
+        assert.ok(arbitrumOne.length, 1);
       },
     );
   });
