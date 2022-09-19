@@ -104,8 +104,8 @@ describe('Custom network', function () {
         });
 
         await driver.clickElement({
-          tag : 'button',
-          text : 'Got it'
+          tag: 'button',
+          text: 'Got it',
         });
 
         // verify network switched
@@ -163,7 +163,7 @@ describe('Custom network', function () {
           text: 'Dismiss',
         });
 
-        // verify if added network is in list of networks 
+        // verify if added network is in list of networks
         const networkDisplay = await driver.findElement('.network-display');
         await networkDisplay.click();
 
