@@ -103,14 +103,9 @@ describe('Custom network', function () {
           text: 'Switch to Avalanche Network C-Chain',
         });
 
-        await driver.clickElement({
-          tag: 'button',
-          text: 'Got it',
-        });
-
         // verify network switched
         const networkDisplayed = await driver.findElement({
-          tag: 'h6',
+          tag: 'span',
           text: 'Avalanche Network C-Chain',
         });
         assert.equal(
@@ -167,11 +162,11 @@ describe('Custom network', function () {
         const networkDisplay = await driver.findElement('.network-display');
         await networkDisplay.click();
 
-        const arbitrumOne = await driver.findElements({
-          text: `Arbitrum One`,
-          tag: 'h6',
+        const avalancheNetwork = await driver.findElements({
+          text: `Avalanche Network C-Chain`,
+          tag: 'span',
         });
-        assert.ok(arbitrumOne.length, 1);
+        assert.ok(avalancheNetwork.length, 1);
       },
     );
   });

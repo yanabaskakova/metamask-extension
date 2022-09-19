@@ -1,5 +1,6 @@
 const blacklistedHosts = [
   'arbitrum-mainnet.infura.io',
+  'avalanche-mainnet.infura.io',
   'goerli.infura.io',
   'kovan.infura.io',
   'mainnet.infura.io',
