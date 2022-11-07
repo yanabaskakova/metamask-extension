@@ -109,7 +109,7 @@ export default class MetaMetricsController {
     const abandonedFragments = omitBy(initState?.fragments, 'persist');
 
     this.store = new ObservableStore({
-      participateInMetaMetrics: null,
+      participateInMetaMetrics: false,
       metaMetricsId: null,
       eventsBeforeMetricsOptIn: [],
       traits: {},
