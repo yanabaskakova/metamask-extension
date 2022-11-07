@@ -14,8 +14,8 @@ const mapStateToProps = (_, ownProps) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setParticipateInMetaMetrics: (val) =>
-      dispatch(setParticipateInMetaMetrics(val)),
+    setParticipateInMetaMetrics: () =>
+      dispatch(setParticipateInMetaMetrics(false)),
   };
 };
 

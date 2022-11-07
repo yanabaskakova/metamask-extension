@@ -40,10 +40,14 @@ export default class UnlockPage extends Component {
      * Force update metamask data state
      */
     forceUpdateMetamaskState: PropTypes.func,
+    // /**
+    //  * Event handler to show metametrics modal
+    //  */
+    // showOptInModal: PropTypes.func,
     /**
      * Event handler to show metametrics modal
      */
-    showOptInModal: PropTypes.func,
+    setParticipateInMetaMetrics: PropTypes.func,
   };
 
   state = {
@@ -70,7 +74,8 @@ export default class UnlockPage extends Component {
     event.stopPropagation();
 
     const { password } = this.state;
-    const { onSubmit, forceUpdateMetamaskState, showOptInModal } = this.props;
+    const { onSubmit, forceUpdateMetamaskState, setParticipateInMetaMetrics } =
+      this.props;
 
     if (password === '' || this.submitting) {
       return;
@@ -99,7 +104,7 @@ export default class UnlockPage extends Component {
         newState.participateInMetaMetrics === null ||
         newState.participateInMetaMetrics === undefined
       ) {
-        showOptInModal();
+        setParticipateInMetaMetrics(false);
       }
     } catch ({ message }) {
       this.failed_attempts += 1;
