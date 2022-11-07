@@ -318,6 +318,8 @@ function setupController(initState, initLangCode, remoteSourcePort) {
   // MetaMask Controller
   //
 
+  console.log('process.env.', process.env);
+
   controller = new MetamaskController({
     infuraProjectId: process.env.INFURA_PROJECT_ID,
     // User confirmation callbacks:

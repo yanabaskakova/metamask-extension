@@ -179,6 +179,8 @@ export default class MetamaskController extends EventEmitter {
       this.privateSendUpdate.bind(this),
       MILLISECOND * 200,
     );
+
+    console.log('opts', opts);
     this.opts = opts;
     this.extension = opts.browser;
     this.platform = opts.platform;

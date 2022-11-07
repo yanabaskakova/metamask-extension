@@ -176,7 +176,7 @@
         "http://127.0.0.1:8080": {
           "permissions": [
             {
-              "@context": ["https://github.com/MetaMask/rpc-cap"],
+              "@context": ["https://github.com/RMT Wallet/rpc-cap"],
               "parentCapability": "eth_accounts",
               "id": "f55a1c15-ea48-4088-968e-63be474d42fa",
               "date": 1594348332268,

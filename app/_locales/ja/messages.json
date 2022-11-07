@@ -256,15 +256,15 @@
     "description": "The description of the application"
   },
   "appName": {
-    "message": "MetaMask",
+    "message": "RMT Wallet",
     "description": "The name of the application"
   },
   "appNameBeta": {
-    "message": "MetaMask Beta",
+    "message": "RMT Wallet Beta",
     "description": "The name of the application (Beta)"
   },
   "appNameFlask": {
-    "message": "MetaMask Flask",
+    "message": "RMT Wallet Flask",
     "description": "The name of the application (Flask)"
   },
   "approve": {
@@ -432,21 +432,21 @@
     "description": "$1 represents the cypto symbol to be purchased"
   },
   "buyCryptoWithMoonPayDescription": {
-    "message": "MoonPay は 145 か国以上で、Visa、Mastercard、Apple / Google / Samsung Pay、銀行送金などの一般的な支払方法に対応しています。トークンは MetaMask アカウントに入金されます。"
+    "message": "MoonPay は 145 か国以上で、Visa、Mastercard、Apple / Google / Samsung Pay、銀行送金などの一般的な支払方法に対応しています。トークンは RMT Wallet アカウントに入金されます。"
   },
   "buyCryptoWithTransak": {
     "message": "Transak で $1 を購入",
     "description": "$1 represents the cypto symbol to be purchased"
   },
   "buyCryptoWithTransakDescription": {
-    "message": "Transak は、100 か国以上でクレジット・デビットカード、Apple Pay、MobiKwik、銀行送金 (場所による) に対応しています。$1 は MetaMask アカウントに直接入金されます。",
+    "message": "Transak は、100 か国以上でクレジット・デビットカード、Apple Pay、MobiKwik、銀行送金 (場所による) に対応しています。$1 は RMT Wallet アカウントに直接入金されます。",
     "description": "$1 represents the crypto symbol to be purchased"
   },
   "buyWithWyre": {
     "message": "Wyreで$1を購入"
   },
   "buyWithWyreDescription": {
-    "message": "簡単なオンボーディングプロセスで最高 $ 1000 購入可能。迅速かつインタラクティブな高限度額の購入検証。デビット・クレジットカード、Apple Pay、銀行送金に対応。100か国以上で利用可能。トークンは MetaMask アカウントに入金されます。"
+    "message": "簡単なオンボーディングプロセスで最高 $ 1000 購入可能。迅速かつインタラクティブな高限度額の購入検証。デビット・クレジットカード、Apple Pay、銀行送金に対応。100か国以上で利用可能。トークンは RMT Wallet アカウントに入金されます。"
   },
   "bytes": {
     "message": "バイト"
@@ -1250,15 +1250,15 @@
   },
   "flaskWelcomeWarning2": {
     "message": "この拡張機能の安全性や安定性は保証されていません。Flask で提供される新しい API はフィッシング攻撃への対策ができていないため、Flask を必要とするサイトまたはスナップは、アセットの盗難を目的とした悪質なものである可能性があります。",
-    "description": "This explains the risks of using MetaMask Flask"
+    "description": "This explains the risks of using RMT Wallet Flask"
   },
   "flaskWelcomeWarning3": {
-    "message": "Flask API はすべて実験的なものです。これらは通知なしに変更または削除される可能性があり、安定した MetaMask に移行することなく永久に Flask に残る可能性もあります。自己責任でご使用ください。",
+    "message": "Flask API はすべて実験的なものです。これらは通知なしに変更または削除される可能性があり、安定した RMT Wallet に移行することなく永久に Flask に残る可能性もあります。自己責任でご使用ください。",
     "description": "This message warns developers about unstable Flask APIs"
   },
   "flaskWelcomeWarning4": {
-    "message": "Flask の使用中は、通常の MetaMask 拡張機能を無効にしてください。",
-    "description": "This message calls to pay attention about multiple versions of MetaMask running on the same site (Flask + Prod)"
+    "message": "Flask の使用中は、通常の RMT Wallet 拡張機能を無効にしてください。",
+    "description": "This message calls to pay attention about multiple versions of RMT Wallet running on the same site (Flask + Prod)"
   },
   "flaskWelcomeWarningAcceptButton": {
     "message": "リスクを受け入れる",
@@ -1718,7 +1718,7 @@
   },
   "ledgerLive": {
     "message": "Ledger Live",
-    "description": "The name of a desktop app that can be used with your ledger device. We can also use it to connect a users Ledger device to MetaMask."
+    "description": "The name of a desktop app that can be used with your ledger device. We can also use it to connect a users Ledger device to RMT Wallet."
   },
   "ledgerLiveApp": {
     "message": "Ledger Liveアプリ"
@@ -1852,7 +1852,7 @@
     "message": "イーサリアムと分散型Webに接続しています。"
   },
   "metamaskSwapsOfflineDescription": {
-    "message": "MetaMask Swapsはメンテナンス中です。後でもう一度確認してください。"
+    "message": "RMT Wallet Swapsはメンテナンス中です。後でもう一度確認してください。"
   },
   "metamaskVersion": {
     "message": "MetaMaskのバージョン"
@@ -1948,7 +1948,7 @@
     "message": "名前"
   },
   "needCryptoInWallet": {
-    "message": "MetaMask で分散型アプリケーションとやり取りするには、ウォレットに $1 が必要です。",
+    "message": "RMT Wallet で分散型アプリケーションとやり取りするには、ウォレットに $1 が必要です。",
     "description": "$1 represents the cypto symbol to be purchased"
   },
   "needHelp": {
@@ -2088,7 +2088,7 @@
   },
   "nextNonceWarning": {
     "message": "ナンスが提案され$1よりも大きいです",
-    "description": "The next nonce according to MetaMask's internal logic"
+    "description": "The next nonce according to RMT Wallet's internal logic"
   },
   "nft": {
     "message": "NFT"
@@ -2204,12 +2204,12 @@
     "message": "人気のネットワークを追加"
   },
   "notifications1Description": {
-    "message": "MetaMask Mobileのユーザーが、モバイルウォレット内でトークンを交換できるようになりました。QRコードをスキャンしてモバイルアプリを取得し、スワップを開始します。",
+    "message": "RMT Wallet Mobileのユーザーが、モバイルウォレット内でトークンを交換できるようになりました。QRコードをスキャンしてモバイルアプリを取得し、スワップを開始します。",
     "description": "Description of a notification in the 'See What's New' popup. Describes the swapping on mobile feature."
   },
   "notifications1Title": {
     "message": "モバイルでのスワッピングが可能になりました!\n",
-    "description": "Title for a notification in the 'See What's New' popup. Tells users that they can now use MetaMask Swaps on Mobile."
+    "description": "Title for a notification in the 'See What's New' popup. Tells users that they can now use RMT Wallet Swaps on Mobile."
   },
   "notifications3ActionText": {
     "message": "続きを表示",
@@ -2256,7 +2256,7 @@
     "description": "Title for a notification in the 'See What's New' popup. Lets users know about the Ledger support update"
   },
   "notifications7DescriptionOne": {
-    "message": "MetaMask v10.1.0には、Ledgerデバイスを使用時のEIP-1559トランザクションのサポートが新たに追加されました。",
+    "message": "RMT Wallet v10.1.0には、Ledgerデバイスを使用時のEIP-1559トランザクションのサポートが新たに追加されました。",
     "description": "Description of a notification in the 'See What's New' popup. Describes changes for ledger and EIP1559 in v10.1.0"
   },
   "notifications7DescriptionTwo": {
@@ -2272,7 +2272,7 @@
     "description": "Description on an action button that appears in the What's New popup. Tells the user that if they click it, they will go to our Advanced settings page."
   },
   "notifications8DescriptionOne": {
-    "message": "MetaMask v10.4.0以降では、LedgerデバイスのMetaMaskへの接続にLedger Liveが不要になりました。",
+    "message": "RMT Wallet v10.4.0以降では、LedgerデバイスのMetaMaskへの接続にLedger Liveが不要になりました。",
     "description": "Description of a notification in the 'See What's New' popup. Describes changes for how Ledger Live is no longer needed to connect the device."
   },
   "notifications8DescriptionTwo": {
@@ -2382,7 +2382,7 @@
   },
   "openFullScreenForLedgerWebHid": {
     "message": "WebHIDでLedgerを接続するには、MetaMaskを全画面モードで開いてください。",
-    "description": "Shown to the user on the confirm screen when they are viewing MetaMask in a popup window but need to connect their ledger via webhid."
+    "description": "Shown to the user on the confirm screen when they are viewing RMT Wallet in a popup window but need to connect their ledger via webhid."
   },
   "optional": {
     "message": "任意"
@@ -2465,7 +2465,7 @@
     "description": "The description for the `wallet_snap_*` permission. $1 is the name of the Snap."
   },
   "permission_customConfirmation": {
-    "message": "MetaMask に確認を表示します。",
+    "message": "RMT Wallet に確認を表示します。",
     "description": "The description for the `snap_confirm` permission"
   },
   "permission_ethereumAccounts": {
@@ -2674,7 +2674,7 @@
     "message": "ウォレットのリセット"
   },
   "resetWalletSubHeader": {
-    "message": "MetaMask はパスワードのコピーを保管しません。アカウントのロックを解除できない場合は、ウォレットをリセットする必要があります。これは、ウォレットのセットアップ時に使用した秘密のリカバリーフレーズを入力することで行えます。"
+    "message": "RMT Wallet はパスワードのコピーを保管しません。アカウントのロックを解除できない場合は、ウォレットをリセットする必要があります。これは、ウォレットのセットアップ時に使用した秘密のリカバリーフレーズを入力することで行えます。"
   },
   "resetWalletUsingSRP": {
     "message": "この操作により、このデバイスから現在のウォレットと秘密のリカバリーフレーズ、および作成されたアカウントのリストが削除されます。秘密のリカバリーフレーズでリセットすると、リセットに使用された秘密のリカバリーフレーズに基づくアカウントのリストが表示されます。この新しいリストには、残高のあるアカウントが自動的に含まれます。また、以前作成された$1をすることもできます。インポートしたカスタムアカウントは$2である必要があり、アカウントに追加されたカスタムトークンも$3である必要があります。"
@@ -2683,7 +2683,7 @@
     "message": "続行する前に、正しい秘密のリカバリーフレーズを使用していることを確認してください。これは元に戻せません。"
   },
   "restartMetamask": {
-    "message": "MetaMask を再起動"
+    "message": "RMT Wallet を再起動"
   },
   "restore": {
     "message": "復元"
@@ -3203,7 +3203,7 @@
     "message": "もう一度スワップをお試しください。次回は同様のリスクを避けられるようサポートします。"
   },
   "stxDescription": {
-    "message": "MetaMask Swaps がはるかに賢くなりました！スマートトランザクションを有効にすると、MetaMask がプログラムに従ってスワップを最適化できるようになるため、以下のようなメリットがあります。"
+    "message": "RMT Wallet Swaps がはるかに賢くなりました！スマートトランザクションを有効にすると、RMT Wallet がプログラムに従ってスワップを最適化できるようになるため、以下のようなメリットがあります。"
   },
   "stxErrorNotEnoughFunds": {
     "message": "スマートトランザクションに十分な資金がありません。"
@@ -3671,7 +3671,7 @@
     "message": "テーマ"
   },
   "themeDescription": {
-    "message": "ご希望の MetaMask テーマを選択してください。"
+    "message": "ご希望の RMT Wallet テーマを選択してください。"
   },
   "thisWillCreate": {
     "message": "これにより、新しいウォレットとシークレットリカバリーフレーズが作成されます"
@@ -3849,7 +3849,7 @@
     "description": "$1 is the wallet device name; $2 is a link to wallet connection guide"
   },
   "troubleStarting": {
-    "message": "MetaMask がうまく起動しませんでした。このエラーは断続的に発生する可能性があるため、拡張機能を再起動してみてください。"
+    "message": "RMT Wallet がうまく起動しませんでした。このエラーは断続的に発生する可能性があるため、拡張機能を再起動してみてください。"
   },
   "troubleTokenBalances": {
     "message": "トークンバランスのロードに問題があります。トークンバランスを表示できます",
@@ -3878,7 +3878,7 @@
   },
   "u2f": {
     "message": "U2F",
-    "description": "A name on an API for the browser to interact with devices that support the U2F protocol. On some browsers we use it to connect MetaMask to Ledger devices."
+    "description": "A name on an API for the browser to interact with devices that support the U2F protocol. On some browsers we use it to connect RMT Wallet to Ledger devices."
   },
   "unapproved": {
     "message": "未承認"
@@ -4071,7 +4071,7 @@
   },
   "whatsNew": {
     "message": "新機能",
-    "description": "This is the title of a popup that gives users notifications about new features and updates to MetaMask."
+    "description": "This is the title of a popup that gives users notifications about new features and updates to RMT Wallet."
   },
   "whatsThis": {
     "message": "これは何ですか?"

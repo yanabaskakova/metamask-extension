@@ -420,6 +420,7 @@ export default class NetworkController extends EventEmitter {
 
   _configureInfuraProvider(type, projectId) {
     log.info('NetworkController - configureInfuraProvider', type);
+    console.log('_configureInfuraProvider', type, projectId);
     const networkClient = createInfuraClient({
       network: type,
       projectId,

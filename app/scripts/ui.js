@@ -44,6 +44,7 @@ if (isManifestV3) {
 start().catch(log.error);
 
 async function start() {
+  console.log('start');
   // create platform global
   global.platform = new ExtensionPlatform();
 
@@ -106,6 +107,7 @@ async function start() {
   function initializeUiWithTab(tab) {
     initializeUi(tab, connectionStream, (err, store) => {
       if (err) {
+        console.log('err', err);
         // if there's an error, store will be = metamaskState
         displayCriticalError(err, store);
         return;
